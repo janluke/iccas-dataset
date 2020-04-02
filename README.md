@@ -2,10 +2,12 @@
 
 This repository contains (unofficial) datasets about the number of Italian 
 Sars-CoV-2 confirmed cases and deaths disaggregated by age group and sex. 
-The data is (automatically) extracted from pdf reports published by 
-_Istituto Superiore di Sanità_ (ISS) each 3-4 days.
+The data is (automatically) extracted from pdf reports 
+(like [this](https://www.epicentro.iss.it/coronavirus/bollettino/Bollettino-sorveglianza-integrata-COVID-19_30-marzo-2020.pdf)) published by _Istituto Superiore di Sanità_ (ISS) each 3-4 days.
+A link to the most recent report can be found in [this page](https://www.epicentro.iss.it/coronavirus/sars-cov-2-sorveglianza-dati)
+under section "Documento esteso".
 
-The code for downloading ISS reports and generting datasets is included.
+The code for downloading ISS reports and for generating all datasets is also included.
 
 Hopefully, ISS or other institutions will release more detailed 
 machine-readable data making this repository useless. 
