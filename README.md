@@ -71,13 +71,13 @@ automation should work fine for a while.
 
 Here is how it works.
 
-#### ISS reports retrieval
+### ISS reports retrieval
 The [ISS news page](https://www.epicentro.iss.it/coronavirus/aggiornamenti) 
 is parsed to obtain the links to all PDF reports (see `download_reports.py`) 
 and if new reports are found they are downloaded into the `reports` folder 
 (reports are not included in the git repository because they take MBs).
 
-#### Data extraction
+### Data extraction
 For each report, the page containing the table is found by extracting the text from 
 each page (using [PyPDF3](https://github.com/mstamy2/PyPDF3)) and using a regular 
 expression to match the table caption.
@@ -94,7 +94,7 @@ to repeat this manual step only two times.
 (*) I quickly tried extract the table by parsing the text extracted by `PyPDF3` but
 the solution required some "hacks", so in the end I preferred using `tabula-py`.
 
-#### Post-processing and file generation
+### Post-processing and file generation
 At this point we have a dataframe for each report. All columns that can be computed from absolute 
 case/death counts are recomputed to increase precision (do I really need to do that? Probably not). 
 
