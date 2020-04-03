@@ -1,6 +1,8 @@
 # Italy Coronavirus Cases by Age group and Sex (ICCAS)
 
-This repository contains (unofficial) datasets about the number of Italian 
+_[Leggilo in italiano](README.it.md)._
+
+This repository contains datasets about the number of Italian 
 Sars-CoV-2 confirmed cases and deaths disaggregated by age group and sex. 
 The data is (automatically) extracted from pdf reports 
 (like [this](https://www.epicentro.iss.it/coronavirus/bollettino/Bollettino-sorveglianza-integrata-COVID-19_30-marzo-2020.pdf)) published by _Istituto Superiore di Sanità_ (ISS) each 3-4 days.
@@ -27,13 +29,7 @@ The table contains the number of all confirmed cases and deaths disaggregated
 by age group (0-9, 10-19, ..., 80-89, >=90) and sex.
 
 **WARNING**: the sum of male and female cases is **not** equal to the total 
-number of cases, since the sex of some cases is unknown.
-
-Columns can be divided into four groups:
-- "index columns": `date` (missing in `iccas_only_{date}.csv` datasets) and `age_group`;
-- columns about males, starting with `male_`;
-- columns about females, starting with `female_`;
-- columns with totals (males + females + **unknown sex**).
+number of cases, since the sex of some cases is unknown. The same applies to deaths.
 
 Below, `{sex}` can be `male` or `female`.
 
@@ -43,8 +39,8 @@ Below, `{sex}` can be `male` or `female`.
 | `age_group`               | Values: `"0-9", "10-19", ..., "80-89", ">=90"`                                               |
 | `cases`                   | Number of confirmed cases (both sexes + unknown-sex; active + closed)                        |
 | `deaths`                  | number of deaths (both sexes + unknown-sex)                                                  |
-| `{sex}_cases`             | number of cases of sex {sex} (relative to the age group)                                     |
-| `{sex}_deaths`            | number of cases of sex {sex} (relative to the age group) ended up in death                   |
+| `{sex}_cases`             | number of cases of sex {sex}                                                                 |
+| `{sex}_deaths`            | number of cases of sex {sex} ended up in death                                               |
 | `cases_percentage`        | `100 * cases / cases_of_all_ages`                                                            |
 | `deaths_percentage`       | `100 * deaths / deaths_of_all_ages`                                                          |
 | `fatality_rate`           | `100 * deaths / cases`                                                                       |
@@ -52,8 +48,8 @@ Below, `{sex}` can be `male` or `female`.
 | `{sex}_deaths_percentage` | `100 * {sex}_deaths / (male_deaths + female_deaths)` (cases of unknown sex excluded)         | 
 | `{sex}_fatality_rate`     | `100 * {sex}_deaths / {sex}_cases`                                                           |
 
-All columns that can be computed from cases and death counts (bottom half of the table above) were 
-all re-computed to increase precision.
+All columns that can be computed from cases and death absolute counts (bottom 
+half of the table above) were all re-computed.
 
 ## Reading with `pandas`
 ```python 
@@ -66,7 +62,7 @@ single = pd.read_csv('iccas_only_2020-03-30.csv', index_col='age_group')   # or 
 full = pd.read_csv('iccas_full.csv', index_col=('date', 'age_group'))  # or index_col=(0, 1)
 ```
 
-## About the code
+## How the code works
 
 I tried to automate as much as possible, more for the sake of "exercising" than for convenience
 (I took this as a kind of didactical project); but of course, if ISS don't make crazy changes, the
