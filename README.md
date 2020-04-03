@@ -52,7 +52,8 @@ Below, `{sex}` can be `male` or `female`.
 | `{sex}_deaths_percentage` | `100 * {sex}_deaths / (male_deaths + female_deaths)` (cases of unknown sex excluded)         | 
 | `{sex}_fatality_rate`     | `100 * {sex}_deaths / {sex}_cases`                                                           |
 
-All columns that can be computed from cases and death counts (bottom half of the table above) were all re-computed.
+All columns that can be computed from cases and death counts (bottom half of the table above) were 
+all re-computed to increase precision.
 
 ## Reading with `pandas`
 ```python 
@@ -93,7 +94,7 @@ and are created using the [Tabula app](https://tabula.technology/) by loading a 
 and manually selecting the area of interest. Fortunately, the table area location has been stable so I had
 to repeat this manual step only two times.
 
-(*) I quickly tried extract the table by parsing the text extracted by `PyPDF3` but
+(*) I quickly tried to extract the table by parsing the text extracted by `PyPDF3` but
 the solution required some "hacks", so in the end I preferred using `tabula-py`.
 
 ### Post-processing and file generation
