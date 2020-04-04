@@ -15,7 +15,7 @@ import tabula
 from settings import (
     FULL_DATASET_DIR,
     ISS_REPORTS_DIR,
-    SINGLE_DATE_DATA_DIR,
+    DATA_BY_DATE_DIR,
     TABULA_TEMPLATES_DIR,
     get_date_from_filename,
     get_full_dataset_path,
@@ -184,7 +184,7 @@ def extract_table(pdf_path, area, page=None, recompute_derived_cols=True) -> pd.
 
 
 def make_single_date_datasets(reports_dir: Path = ISS_REPORTS_DIR,
-                              data_dir: Path = SINGLE_DATE_DATA_DIR,
+                              data_dir: Path = DATA_BY_DATE_DIR,
                               skip_existing=True) -> int:
     data_dir.mkdir(parents=True, exist_ok=True)
     new_dataset_count = 0
@@ -227,7 +227,7 @@ def list_datasets_by_date(dirpath: Path) -> List[Tuple[str, Path]]:
     return sorted(date_path, key=lambda p: p[0])
 
 
-def make_full_dataset(input_dir=SINGLE_DATE_DATA_DIR,
+def make_full_dataset(input_dir=DATA_BY_DATE_DIR,
                       output_dir=FULL_DATASET_DIR):
     date_path_pairs = list_datasets_by_date(input_dir)
     if not date_path_pairs:

@@ -2,14 +2,16 @@
 
 _[Leggilo in italiano](README.it.md)._
 
-This repository contains datasets about the number of Italian 
-Sars-CoV-2 confirmed cases and deaths disaggregated by age group and sex. 
+This repository contains datasets about the number of Italian Sars-CoV-2 
+confirmed cases and deaths disaggregated by age group and sex. 
 The data is (automatically) extracted from pdf reports 
-(like [this](https://www.epicentro.iss.it/coronavirus/bollettino/Bollettino-sorveglianza-integrata-COVID-19_30-marzo-2020.pdf)) published by _Istituto Superiore di Sanità_ (ISS) each 3-4 days.
+(like [this](https://www.epicentro.iss.it/coronavirus/bollettino/Bollettino-sorveglianza-integrata-COVID-19_30-marzo-2020.pdf)) 
+published by _Istituto Superiore di Sanità_ (ISS) two times a week.
 A link to the most recent report can be found in [this page](https://www.epicentro.iss.it/coronavirus/sars-cov-2-sorveglianza-dati)
 under section "Documento esteso".
 
-The code for downloading ISS reports and for generating all datasets is also included.
+The code for downloading ISS reports and for generating all datasets is also 
+included (but maybe I'll move it into a separate repository).
 
 Hopefully, ISS or other institutions will release more detailed 
 machine-readable data making this repository useless. 
@@ -18,15 +20,18 @@ machine-readable data making this repository useless.
 The `data` folder is structured as follows:
 ```
 data
-├── single-date                     
-│   └── iccas_only_{date}.csv  Dataset with data from the report of {date}
-└── iccas_full.csv             Dataset with data extracted from all reports
+├── by-date                    
+│   └── iccas_{date}.csv   Dataset with cases/deaths updated to 4 p.m. of {date}
+└── iccas_full.csv      Dataset with data from all reports (by date)
 ```
+The full dataset is obtained by concatenating all datasets in `by-date` and has
+an additional `date` column.
 
-## Description
-For each report, data is extracted from a single table (it has been "Table 1").
-The table contains the number of all confirmed cases and deaths disaggregated 
-by age group (0-9, 10-19, ..., 80-89, >=90) and sex.
+## Dataset details
+Each dataset in the `by-date` folder contains the same data you can find in 
+"Table 1" of the corresponding ISS report.
+This table contains the number of confirmed cases, deaths and other derived
+information disaggregated by age group (0-9, 10-19, ..., 80-89, >=90) and sex.
 
 **WARNING**: the sum of male and female cases is **not** equal to the total 
 number of cases, since the sex of some cases is unknown. The same applies to deaths.
@@ -35,12 +40,12 @@ Below, `{sex}` can be `male` or `female`.
 
 | Column                    | Description                                                                                  |
 |---------------------------|----------------------------------------------------------------------------------------------|
-| `date`                    | **(Only present in `iccas_full.csv`)** Date formatted as `YYYY-MM-DD`                        |
+| `date`                    | **(Only in `iccas_full.csv`)** Date the format `YYYY-MM-DD`; numbers are updated to 4 p.m of this date |
 | `age_group`               | Values: `"0-9", "10-19", ..., "80-89", ">=90"`                                               |
 | `cases`                   | Number of confirmed cases (both sexes + unknown-sex; active + closed)                        |
-| `deaths`                  | number of deaths (both sexes + unknown-sex)                                                  |
-| `{sex}_cases`             | number of cases of sex {sex}                                                                 |
-| `{sex}_deaths`            | number of cases of sex {sex} ended up in death                                               |
+| `deaths`                  | Number of deaths (both sexes + unknown-sex)                                                  |
+| `{sex}_cases`             | Number of cases of sex {sex}                                                                 |
+| `{sex}_deaths`            | Number of cases of sex {sex} ended up in death                                               |
 | `cases_percentage`        | `100 * cases / cases_of_all_ages`                                                            |
 | `deaths_percentage`       | `100 * deaths / deaths_of_all_ages`                                                          |
 | `fatality_rate`           | `100 * deaths / cases`                                                                       |
@@ -48,19 +53,8 @@ Below, `{sex}` can be `male` or `female`.
 | `{sex}_deaths_percentage` | `100 * {sex}_deaths / (male_deaths + female_deaths)` (cases of unknown sex excluded)         | 
 | `{sex}_fatality_rate`     | `100 * {sex}_deaths / {sex}_cases`                                                           |
 
-All columns that can be computed from cases and death absolute counts (bottom 
-half of the table above) were all re-computed.
-
-## Reading with `pandas`
-```python 
-import pandas as pd
-
-# Reading a single-date dataset
-single = pd.read_csv('iccas_only_2020-03-30.csv', index_col='age_group')   # or index_col=0
-
-# Reading the full dataset
-full = pd.read_csv('iccas_full.csv', index_col=('date', 'age_group'))  # or index_col=(0, 1)
-```
+All columns that can be computed from absolute counts of cases and deaths (bottom 
+half of the table above) were all re-computed to increase precision.
 
 ## How the code works
 
@@ -97,8 +91,8 @@ the solution required some "hacks", so in the end I preferred using `tabula-py`.
 At this point we have a dataframe for each report. All columns that can be computed from absolute 
 case/death counts are recomputed to increase precision (do I really need to do that? Probably not). 
 
-A `pandas.DataFrame` for the full dataset is created by concatenating all single-date dataframes 
+A `pandas.DataFrame` for the full dataset is created by concatenating all dataframes extracted
 and defining a multi-index `(date, age_group)`.
 
-All datasets are generated using `pandas.to_csv`.
+All dataset files are generated using `pandas`.
 
