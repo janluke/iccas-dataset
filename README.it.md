@@ -21,8 +21,8 @@ repository inutile.
 ```
 data
 ├── by-date                     
-│   └── iccas_only_{data}.csv   Dataset con dati aggiornati alle 16:00 di giorno {data}
-└── iccas_full.csv              Dataset con i dati di tutti i bollettini pubblicati finora
+│   └── iccas_{data}.csv   Dataset con dati aggiornati alle 16:00 di giorno {data}
+└── iccas_full.csv         Dataset con i dati di tutti i bollettini pubblicati finora
 ```
 `iccas_full.csv` contiene i dati di tutti i dataset nella cartella `by-date` e
 ha una colonna aggiuntiva rispetto a questi: `date` (data). 

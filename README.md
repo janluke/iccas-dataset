@@ -22,7 +22,7 @@ The `data` folder is structured as follows:
 data
 ├── by-date                    
 │   └── iccas_{date}.csv   Dataset with cases/deaths updated to 4 p.m. of {date}
-└── iccas_full.csv      Dataset with data from all reports (by date)
+└── iccas_full.csv         Dataset with data from all reports (by date)
 ```
 The full dataset is obtained by concatenating all datasets in `by-date` and has
 an additional `date` column.
