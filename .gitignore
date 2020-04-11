@@ -1,5 +1,6 @@
-# ISS pdf reports
+# Project-specific
 reports/*
+log.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -84,7 +85,7 @@ celerybeat-schedule
 *.sage.py
 
 # dotenv
-.env
+credentials.json
 
 # virtualenv
 .venv
