@@ -185,10 +185,9 @@ def extract_table(pdf_path, area, page=None, recompute_derived_cols=True) -> pd.
 
 def make_single_date_datasets(reports_dir: Path = ISS_REPORTS_DIR,
                               data_dir: Path = DATA_BY_DATE_DIR,
-                              skip_existing=True) -> int:
+                              skip_existing=True) -> List[Path]:
     data_dir.mkdir(parents=True, exist_ok=True)
-    new_dataset_count = 0
-    errors = []
+    new_dataset_paths = []
     relative_paths = sorted(reports_dir.iterdir())
     for relpath in relative_paths:
         path = reports_dir / relpath
@@ -200,25 +199,14 @@ def make_single_date_datasets(reports_dir: Path = ISS_REPORTS_DIR,
             print(f"Making dataset for report of {date} ...")
             template = get_tabula_template_for(date)
             table_area = area_from_template(template)
-            try:
-                df = extract_table(path, table_area)
-                df.to_csv(out_path, index=False)
-                new_dataset_count += 1
-                print('Dataset saved to', out_path)
-            except TableExtractionError as exc:
-                print('ERROR:', exc)
-                errors.append((date, exc))
+            df = extract_table(path, table_area)
+            df.to_csv(out_path, index=False)
+            new_dataset_paths.append(out_path)
+            print('Dataset saved to', out_path)
             print('-' * 80)
 
-    print('\nRecap:')
-    print('* new datasets written:', new_dataset_count)
-    if errors:
-        print('* errors (%d):' % len(errors))
-        for date, exc in errors:
-            print(f'  - report {date}:', exc)
-    print('')
-
-    return new_dataset_count
+    print('\nNew datasets written:', new_dataset_paths, end='\n\n')
+    return new_dataset_paths
 
 
 def list_datasets_by_date(dirpath: Path) -> List[Tuple[str, Path]]:
@@ -245,6 +233,7 @@ def make_full_dataset(input_dir=DATA_BY_DATE_DIR,
     output_dir.mkdir(parents=True, exist_ok=True)
     full.to_csv(out_path)
     print('Full dataset written to', out_path)
+    return out_path
 
 
 if __name__ == '__main__':
