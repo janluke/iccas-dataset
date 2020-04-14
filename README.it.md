@@ -10,22 +10,33 @@ pubblicati dall'Istituto Superiore di Sanità (ISS) due volte a settimana.
 Un link al report più recente può essere trovato in [questa pagina](https://www.epicentro.iss.it/coronavirus/sars-cov-2-sorveglianza-dati)
 alla sezione "Documento esteso".
  
-La repository contiene anche il codice usato per scaricare i bollettini e per 
-generare i dataset (ma sto valutando di spostarlo in una repository separata). 
+I bollettini dell'ISS sono solitamente pubblicati di martedì e venerdì e contengono
+dati aggiornati (in genere) alle 16:00 del giorno precedente.
+Questa repository viene aggiornata ogni volta che un nuovo bollettino viene 
+pubblicato, solitamente in modo automatico da uno script che viene eseguito
+periodicamente. Puoi trovare il codice (Python) in [questa repository](https://github.com/janLuke/iccas-code).
 
-Sperabilmente, l'ISS o altre istituzioni rilasceranno in futuro dati come questi
-(o meglio, più dettagliati) in formato _machine-readable_, rendendo questa 
-repository inutile.
 
 ## Struttura della cartella `data`
 ```
 data
 ├── by-date                     
 │   └── iccas_{data}.csv   Dataset con dati aggiornati alle 16:00 di giorno {data}
-└── iccas_full.csv         Dataset con i dati di tutti i bollettini pubblicati finora
+└── iccas_full.csv         
 ```
-`iccas_full.csv` contiene i dati di tutti i dataset nella cartella `by-date` e
-ha una colonna aggiuntiva rispetto a questi: `date` (data). 
+`iccas_full.csv` è la concatenazione di tutti i dataset nella cartella `by-date` 
+e ha una colonna aggiuntiva rispetto a questi: `date` (data).
+Nel caso si usi `pandas`, suggerisco di usare un multi-index sulle prime due 
+colonne (ovvero, la data e la classe d'età):
+```python
+import pandas as pd
+df = pd.read_csv('iccas_full.csv', index_col=(0, 1))  # ('date', 'age_group')
+``` 
+
+
+**NOTA:** le date riportate sui file `iccas_{data}.csv` sono le date a cui i 
+dati si riferiscono, NON le date di pubblicazione dei bollettini.
+
 
 ## Descrizione del dataset
 I dataset della cartella `by-date` contengono gli stessi dati che puoi trovare
@@ -61,8 +72,3 @@ colonne: `male_cases` e `female_cases`.
 | `{sex}_fatality_rate`     | `100 * morti_{sesso} / casi_{sesso}` (Letalità per i pazienti di un dato sesso)              |
 
 Tutte le colonne da `cases_percentage` in giù sono state ricalcolate.
-
-## Come funziona il codice incluso
-
-Questa sezione è disponibile solo in [inglese](README.md#how-the-code-works).
-

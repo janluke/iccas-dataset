@@ -10,11 +10,13 @@ published by _Istituto Superiore di Sanità_ (ISS) two times a week.
 A link to the most recent report can be found in [this page](https://www.epicentro.iss.it/coronavirus/sars-cov-2-sorveglianza-dati)
 under section "Documento esteso".
 
-The code for downloading ISS reports and for generating all datasets is also 
-included (but maybe I'll move it into a separate repository).
+PDF reports are usually published on Tuesday and Friday and contains data updated
+to the 4 p.m. of the day day before their release. 
 
-Hopefully, ISS or other institutions will release more detailed 
-machine-readable data making this repository useless. 
+I wrote a script that is runned periodically in order to automatically update 
+this repository when a new report is published. 
+The code is hosted in a [separate repository](https://github.com/janLuke/iccas-code).
+
 
 ## Data folder structure
 The `data` folder is structured as follows:
@@ -25,7 +27,18 @@ data
 └── iccas_full.csv         Dataset with data from all reports (by date)
 ```
 The full dataset is obtained by concatenating all datasets in `by-date` and has
-an additional `date` column.
+an additional `date` column. If you use `pandas`, I suggest you to read this
+dataset using a multi-index on the first two columns:
+```python
+import pandas as pd
+df = pd.read_csv('iccas_full.csv', index_col=(0, 1))  # ('date', 'age_group')
+``` 
+
+**NOTE:** `{date}` is the date the data refers to, NOT the release date of the report 
+it was extracted from: as written above, a report is usually released with a day 
+of delay. For example, `iccas_2020-03-19.csv` contains data relative to 2020-03-19 
+which was extracted from the report published in 2020-03-20.
+
 
 ## Dataset details
 Each dataset in the `by-date` folder contains the same data you can find in 
@@ -55,44 +68,3 @@ Below, `{sex}` can be `male` or `female`.
 
 All columns that can be computed from absolute counts of cases and deaths (bottom 
 half of the table above) were all re-computed to increase precision.
-
-## How the code works
-
-I tried to automate as much as possible, more for the sake of "exercising" than for convenience
-(I took this as a kind of didactical project); but of course, if ISS don't make crazy changes, the
-automation should work fine for a while.
-
-Here is how it works.
-
-### ISS reports retrieval
-The [ISS news page](https://www.epicentro.iss.it/coronavirus/aggiornamenti) 
-is parsed to obtain the links to all PDF reports (see `download_reports.py`) 
-and if new reports are found they are downloaded into the `reports` folder 
-(reports are not included in the git repository because they take MBs).
-
-### Data extraction
-For each report, the page containing the table is found by extracting the text from 
-each page (using [PyPDF3](https://github.com/mstamy2/PyPDF3)) and using a regular 
-expression to match the table caption.
-
-Then, the table is extracted from the page using [tabula-py](https://github.com/chezou/tabula-py)* 
-with "tabula templates", i.e. JSON files describing where the table is located (page and selection area).
-Since the page containing the table is automatically detected, only the "selection area" is actually used.
-
-Templates are stored in the `tabula-templates` folder as `{date of first validity}.tabula-template.json`
-and are created using the [Tabula app](https://tabula.technology/) by loading a document 
-and manually selecting the area of interest. Fortunately, the table area location has been stable so I had
-to repeat this manual step only two times.
-
-(*) I quickly tried to extract the table by parsing the text extracted by `PyPDF3` but
-the solution required some "hacks", so in the end I preferred using `tabula-py`.
-
-### Post-processing and file generation
-At this point we have a dataframe for each report. All columns that can be computed from absolute 
-case/death counts are recomputed to increase precision (do I really need to do that? Probably not). 
-
-A `pandas.DataFrame` for the full dataset is created by concatenating all dataframes extracted
-and defining a multi-index `(date, age_group)`.
-
-All dataset files are generated using `pandas`.
-

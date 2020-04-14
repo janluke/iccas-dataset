@@ -1,7 +1,0 @@
-urllib3
-py-notifier
-numpy
-reagex
-pandas==1.0.*
-tabula-py==2.1.0
-requests
