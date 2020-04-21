@@ -10,8 +10,9 @@ published by _Istituto Superiore di Sanità_ (ISS) two times a week.
 A link to the most recent report can be found in [this page](https://www.epicentro.iss.it/coronavirus/sars-cov-2-sorveglianza-dati)
 under section "Documento esteso".
 
-PDF reports are usually published on Tuesday and Friday and contains data updated
-to the 4 p.m. of the day day before their release. 
+PDF reports were published two times a week but, starting from 2020-04-16, they
+are published once a week. Each report contains data updated to the 4 p.m. of 
+the day day before its release. 
 
 I wrote a script that is runned periodically in order to automatically update 
 this repository when a new report is published. 
