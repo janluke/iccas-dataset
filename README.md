@@ -2,6 +2,11 @@
 
 _[Leggilo in italiano](README.it.md)._
 
+**NOTICE:** since the script used for automating the generation and deploy of 
+new datasets stopped working after changes introduced in new pdf reports and 
+given that I've not observed much interest in this data (and I lost interest 
+myself), this dataset won't see any update in the future.
+
 This repository contains datasets about the number of Italian Sars-CoV-2 
 confirmed cases and deaths disaggregated by age group and sex. 
 The data is (automatically) extracted from pdf reports 

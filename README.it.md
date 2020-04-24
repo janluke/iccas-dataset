@@ -2,6 +2,11 @@
 
 _[Read the full version in English](README.md)_.
 
+**AVVISO:** dal momento che lo script usato per automatizzare l'aggiornamento di
+questo dataset ha smesso di funzionare dopo alcuni cambiamenti introdotti nei
+nuovi bollettini pfd e dal momento che non ho visto molto interesse in questo 
+progetto, questa repository non verrà più aggiornata in futuro.
+
 Questa repository contiene dataset sul numero di casi confermati di coronavirus 
 (Sars-CoV-2) e di morti per/con coronavirus in Italia disaggregati per fascia 
 d'età e sesso. I dati sono estratti (automaticamente) dai "bollettini estesi" 
