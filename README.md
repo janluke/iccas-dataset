@@ -2,7 +2,7 @@
 
 _[Leggilo in italiano](README.it.md)._
 
-**NOTICE:** since the script used for automating the generation and deploy of 
+**NOTICE:** since the script used for automating the generation and deployment of 
 new datasets stopped working after changes introduced in new pdf reports and 
 given that I've not observed much interest in this data (and I lost interest 
 myself), **this dataset won't see any update in the future.**
