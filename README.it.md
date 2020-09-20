@@ -2,11 +2,6 @@
 
 _[Read the full version in English](README.md)_.
 
-**AVVISO:** dal momento che lo script usato per automatizzare l'aggiornamento di
-questo dataset ha smesso di funzionare dopo alcuni cambiamenti introdotti nei
-nuovi bollettini pfd e dal momento che non ho visto molto interesse in questo 
-progetto, **questa repository non verrà più aggiornata in futuro.**
-
 Questa repository contiene dataset sul numero di casi confermati di coronavirus 
 (Sars-CoV-2) e di morti per/con coronavirus in Italia disaggregati per fascia 
 d'età e sesso. I dati sono estratti (automaticamente) dai "bollettini estesi" 
@@ -14,10 +9,6 @@ in formato pdf (come [questo](https://www.epicentro.iss.it/coronavirus/bollettin
 pubblicati dall'Istituto Superiore di Sanità (ISS). Un link al report più recente 
 può essere trovato in [questa pagina](https://www.epicentro.iss.it/coronavirus/sars-cov-2-sorveglianza-dati)
 alla sezione "Documento esteso".
-
-I bollettini estesi erano bisettimanali ma a partire dal 16/04/2020, essi sono 
-diventati settimanali. Ogni bollettino contiene dati aggiornati alle 16:00 del 
-giorno precedente alla pubblicazione.
 
 Questa repository viene aggiornata ogni volta che un nuovo bollettino viene 
 pubblicato, solitamente in modo automatico da uno script che viene eseguito
@@ -33,17 +24,12 @@ data
 ```
 `iccas_full.csv` è la concatenazione di tutti i dataset nella cartella `by-date` 
 e ha una colonna aggiuntiva rispetto a questi: `date` (data).
-Nel caso si usi `pandas`, suggerisco di usare un multi-index sulle prime due 
-colonne (ovvero, la data e la classe d'età):
+Nel caso si usi `pandas`, suggerisco di usare la prima o le prime due colonne
+come indice (risp. la data e la classe d'età):
 ```python
 import pandas as pd
-df = pd.read_csv('iccas_full.csv', index_col=(0, 1))  # ('date', 'age_group')
+df = pd.read_csv('iccas_full.csv', index_col=('date', 'age_group'))  # or (0, 1)
 ``` 
-
-
-**NOTA:** le date riportate sui file `iccas_{data}.csv` sono le date a cui i 
-dati si riferiscono, NON le date di pubblicazione dei bollettini.
-
 
 ## Descrizione del dataset
 I dataset della cartella `by-date` contengono gli stessi dati che puoi trovare

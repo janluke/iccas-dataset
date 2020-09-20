@@ -2,11 +2,6 @@
 
 _[Leggilo in italiano](README.it.md)._
 
-**NOTICE:** since the script used for automating the generation and deployment of 
-new datasets stopped working after changes introduced in new pdf reports and 
-given that I've not observed much interest in this data (and I lost interest 
-myself), **this dataset won't see any update in the future.**
-
 This repository contains datasets about the number of Italian Sars-CoV-2 
 confirmed cases and deaths disaggregated by age group and sex. 
 The data is (automatically) extracted from pdf reports 
@@ -15,13 +10,9 @@ published by _Istituto Superiore di Sanità_ (ISS) two times a week.
 A link to the most recent report can be found in [this page](https://www.epicentro.iss.it/coronavirus/sars-cov-2-sorveglianza-dati)
 under section "Documento esteso".
 
-PDF reports were published two times a week but, starting from 2020-04-16, they
-are published once a week. Each report contains data updated to the 4 p.m. of 
-the day day before its release. 
-
-I wrote a script that is runned periodically in order to automatically update 
+I wrote a script that is run periodically in order to automatically update 
 this repository when a new report is published. 
-The code is hosted in a [separate repository](https://github.com/janLuke/iccas-code).
+You can find the code in [this repository](https://github.com/janLuke/iccas-code).
 
 
 ## Data folder structure
@@ -33,11 +24,11 @@ data
 └── iccas_full.csv         Dataset with data from all reports (by date)
 ```
 The full dataset is obtained by concatenating all datasets in `by-date` and has
-an additional `date` column. If you use `pandas`, I suggest you to read this
-dataset using a multi-index on the first two columns:
+an additional `date` column. If you use `pandas`, I suggest you to read the file
+using the first or the first two columns as index (resp. `date` and `age_group`):
 ```python
 import pandas as pd
-df = pd.read_csv('iccas_full.csv', index_col=(0, 1))  # ('date', 'age_group')
+df = pd.read_csv('iccas_full.csv', index_col=('date', 'age_group'))  # or (0, 1)
 ``` 
 
 **NOTE:** `{date}` is the date the data refers to, NOT the release date of the report 
