@@ -6,9 +6,13 @@ This repository contains datasets about the number of Italian Sars-CoV-2
 confirmed cases and deaths disaggregated by age group and sex. 
 The data is (automatically) extracted from pdf reports 
 (like [this](https://www.epicentro.iss.it/coronavirus/bollettino/Bollettino-sorveglianza-integrata-COVID-19_30-marzo-2020.pdf)) 
-published by _Istituto Superiore di Sanità_ (ISS) two times a week.
+published by _Istituto Superiore di Sanità_ (ISS).
 A link to the most recent report can be found in [this page](https://www.epicentro.iss.it/coronavirus/sars-cov-2-sorveglianza-dati)
 under section "Documento esteso".
+
+Reports were originally published twice per week; since april, they are 
+published only once per week. There may be exception to this schedule though, 
+e.g. in august.
 
 I wrote a script that is run periodically in order to automatically update 
 this repository when a new report is published. 
@@ -51,17 +55,17 @@ Below, `{sex}` can be `male` or `female`.
 | Column                    | Description                                                                                  |
 |---------------------------|----------------------------------------------------------------------------------------------|
 | `date`                    | **(Only in `iccas_full.csv`)** Date the format `YYYY-MM-DD`; numbers are updated to 4 p.m of this date |
-| `age_group`               | Values: `"0-9", "10-19", ..., "80-89", ">=90"`                                               |
+| `age_group`               | Values: `"0-9", "10-19", ..., "80-89", ">=90", unknown`                                      |
 | `cases`                   | Number of confirmed cases (both sexes + unknown-sex; active + closed)                        |
 | `deaths`                  | Number of deaths (both sexes + unknown-sex)                                                  |
-| `{sex}_cases`             | Number of cases of sex {sex}                                                                 |
-| `{sex}_deaths`            | Number of cases of sex {sex} ended up in death                                               |
-| `cases_percentage`        | `100 * cases / cases_of_all_ages`                                                            |
-| `deaths_percentage`       | `100 * deaths / deaths_of_all_ages`                                                          |
+| `{sex}_cases`             | Number of cases for {sex}                                                                    |
+| `{sex}_deaths`            | Number of cases ended up in death for {sex}                                                  |
+| `cases_percentage`        | `100 * cases / <cases_of_all_ages>`                                                          |
+| `deaths_percentage`       | `100 * deaths / <deaths_of_all_ages>`                                                        |
 | `fatality_rate`           | `100 * deaths / cases`                                                                       |
-| `{sex}_cases_percentage`  | `100 * {sex}_cases / (male_cases + female_cases)` (cases of unknown sex excluded)            |
-| `{sex}_deaths_percentage` | `100 * {sex}_deaths / (male_deaths + female_deaths)` (cases of unknown sex excluded)         | 
+| `{sex}_cases_percentage`  | `100 * {sex}_cases / (male_cases + female_cases)`                                            |
+| `{sex}_deaths_percentage` | `100 * {sex}_deaths / (male_deaths + female_deaths)`                                         | 
 | `{sex}_fatality_rate`     | `100 * {sex}_deaths / {sex}_cases`                                                           |
 
 All columns that can be computed from absolute counts of cases and deaths (bottom 
-half of the table above) were all re-computed to increase precision.
+half of the table above) were all re-computed.
