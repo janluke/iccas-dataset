@@ -4,17 +4,14 @@ _[Read the full version in English](README.md)_.
 
 Questa repository contiene dataset sul numero di casi confermati di coronavirus 
 (Sars-CoV-2) e di morti per/con coronavirus in Italia disaggregati per fascia 
-d'età e sesso. I dati sono estratti (automaticamente) dai "bollettini estesi" 
+d'età e sesso. I dati sono estratti (automaticamente) dai "documenti estesi" 
 in formato pdf (come [questo](https://www.epicentro.iss.it/coronavirus/bollettino/Bollettino-sorveglianza-integrata-COVID-19_30-marzo-2020.pdf)) 
 pubblicati dall'Istituto Superiore di Sanità (ISS). Un link al report più recente 
-può essere trovato in [questa pagina](https://www.epicentro.iss.it/coronavirus/sars-cov-2-sorveglianza-dati)
+può essere trovato a [questa pagina](https://www.epicentro.iss.it/coronavirus/sars-cov-2-sorveglianza-dati)
 alla sezione "Documento esteso".
 
-I bollettini erano originariamente pubblicati due volte a settimana; da aprile, 
-essi sono pubblicati una volta a settimana.
-
-Il codice Python usato per scaricare i report ed estrarre i dati si trova in 
-[questa repository](https://github.com/janLuke/iccas-code).
+I documenti estesi erano originariamente pubblicati due volte a settimana; da aprile, 
+essi sono pubblicati solo una volta a settimana, solitamente il venerdì.
 
 
 ## Struttura della cartella `data`

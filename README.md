@@ -11,12 +11,8 @@ A link to the most recent report can be found in [this page](https://www.epicent
 under section "Documento esteso".
 
 Reports were originally published twice per week; since april, they are 
-published only once per week. There may be exception to this schedule though, 
+published only once per week. There may be exceptions to this schedule though, 
 e.g. in august.
-
-I wrote a script that is run periodically in order to automatically update 
-this repository when a new report is published. 
-You can find the code in [this repository](https://github.com/janLuke/iccas-code).
 
 
 ## Data folder structure

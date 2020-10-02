@@ -1,0 +1,6 @@
+reagex==0.1.*
+numpy==1.19.*
+pandas==1.0.*
+urllib3==1.25.*
+requests==2.*
+PyPDF3==1.*
