@@ -16,7 +16,7 @@ from reagex import reagex
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 
-from paths import (
+from common import (
     REPORTS_DIR,
     get_report_path
 )

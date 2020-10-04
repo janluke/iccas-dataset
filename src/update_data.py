@@ -11,7 +11,7 @@ from typing import (
 import numpy
 import pandas as pd
 
-from paths import (
+from common import (
     DATA_DIR,
     REPORTS_DIR,
     REPORTS_DATA_DIR,
