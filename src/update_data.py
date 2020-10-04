@@ -16,12 +16,12 @@ from common import (
     REPORTS_DIR,
     REPORTS_DATA_DIR,
     get_dataset_path,
-    get_report_data_path
+    get_report_data_path,
+    cartesian_join
 )
 from table_extraction import (
     TableExtractor,
     PyPDFTableExtractor,
-    cartesian_join,
     COLUMN_PREFIXES
 )
 

@@ -7,6 +7,8 @@ import PyPDF3
 import pandas as pd
 from PyPDF3.pdf import PageObject
 
+from common import cartesian_join
+
 
 def to_int(s):
     if not s:
@@ -18,11 +20,6 @@ def to_float(s):
     if not s:
         return math.nan
     return float(s.replace(',', '.'))
-
-
-def cartesian_join(*string_iterables, sep=''):
-    from itertools import product
-    return (sep.join(iterable) for iterable in product(*string_iterables))
 
 
 # Useful to find the page containing the table

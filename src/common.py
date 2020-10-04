@@ -21,3 +21,8 @@ def get_report_data_path(date, ext='.csv', dirpath=REPORTS_DATA_DIR):
 
 def get_dataset_path(ext='.csv', dirpath=DATA_DIR):
     return Path(dirpath, DATASET_FNAME + ext)
+
+
+def cartesian_join(*string_iterables, sep=''):
+    from itertools import product
+    return (sep.join(iterable) for iterable in product(*string_iterables))
