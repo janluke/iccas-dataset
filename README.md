@@ -21,16 +21,11 @@ The `data` folder is structured as follows:
 ```
 data
 ├── by-date                    
-│   └── iccas_{date}.csv   Dataset with cases/deaths updated to 4 p.m. of {date}
+│   └── iccas_{date}.csv   Dataset with cases/deaths updated to {date}
 └── iccas_full.csv         Dataset with data from all reports (by date)
 ```
 The full dataset is obtained by concatenating all datasets in `by-date` and has
-an additional `date` column. If you use `pandas`, I suggest you to read the file
-using the first or the first two columns as index (resp. `date` and `age_group`):
-```python
-import pandas as pd
-df = pd.read_csv('iccas_full.csv', index_col=('date', 'age_group'))  # or (0, 1)
-``` 
+an additional `date` column. 
 
 
 ## Dataset details
@@ -42,7 +37,7 @@ Below, `{sex}` can be `male` or `female`.
 
 | Column                    | Description                                                                                  |
 |---------------------------|----------------------------------------------------------------------------------------------|
-| `date`                    | **(Only in `iccas_full.csv`)** Date the format `YYYY-MM-DD`; numbers are updated to 4 p.m of this date |
+| `date`                    | **(Only in `iccas_full.csv`)** Date the format `YYYY-MM-DD`                                  |
 | `age_group`               | Values: `"0-9", "10-19", ..., "80-89", ">=90", unknown`                                      |
 | `cases`                   | Number of confirmed cases (both sexes + unknown-sex; active + closed)                        |
 | `deaths`                  | Number of deaths (both sexes + unknown-sex)                                                  |
