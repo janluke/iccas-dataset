@@ -1,4 +1,4 @@
-# Italy Coronavirus Cases by Age group and Sex (ICCAS)
+# Italian Coronavirus Cases by Age group and Sex (ICCAS)
 
 _[Leggilo in italiano](README.it.md)._
 
