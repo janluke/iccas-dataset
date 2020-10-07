@@ -17,15 +17,21 @@ da aprile, essi sono pubblicati solo una volta a settimana, solitamente ogni
 venerdì.
 
 
+## Updates
+
+- **2020/10/07:** 
+    - la colonna `date` include adesso anche l'ora (formato ISO, `yyyy-mm-ddThh:mm`).
+    - la colonna `date` è adesso presente anche nei dataset per data (`by-date`);
+      ovviamente, in tali dataset, la colonna `date` contiene un unico valore replicato.
+
+
 ## Struttura della cartella `data`
 ```
 data
 ├── by-date                     
 │   └── iccas_{data}.csv   Dataset con dati aggiornati a giorno {data}
-└── iccas_full.csv         
+└── iccas_full.csv         Concatenazione di tutti i dataset iccas_{data}.csv
 ```
-`iccas_full.csv` è la concatenazione di tutti i dataset nella cartella `by-date` 
-e ha una colonna aggiuntiva rispetto a questi: `date` (data).
 
 
 ## Descrizione del dataset
@@ -39,7 +45,7 @@ la data e la fascia d'età.
 
 | Column                    | Description                                                                                  |
 |---------------------------|----------------------------------------------------------------------------------------------|
-| `date`                    | **(Presente solo in `iccas_full.csv`)** Data nel formato `AAAA-MM-GG`                        |
+| `date`                    | Data e ora locale italiana in formato ISO-8601 `yyyy-mm-ddThh:mm`                            |
 | `age_group`               | Fascia d'età: `"0-9", "10-19", ..., "80-89", ">=90", "unknown"`                              |
 | `cases`                   | Numero di casi confermati (entrambi i sessi + sesso non noto; aperti + chiusi)               |
 | `deaths`                  | Numero di morti (entrambi i sessi + sesso non noto)                                          |

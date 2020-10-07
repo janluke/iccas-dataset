@@ -15,36 +15,41 @@ Reports were originally published twice per week; since april, they are
 published only once per week, usually on Friday. There may be exceptions to this
 schedule though, e.g. in august one report was skipped.
 
+## Updates
+
+- **2020/10/07:** 
+    - the `date` column now includes the hour (in ISO format, `yyyy-mm-ddThh:mm`).
+    - the `date` column was added to all datasets by date; of course, it contains
+      a unique duplicated datetime.
+
 
 ## Data folder structure
 The `data` folder is structured as follows:
 ```
 data
 ├── by-date                    
-│   └── iccas_{date}.csv   Dataset with cases/deaths updated to {date}
-└── iccas_full.csv         Dataset with data from all reports (by date)
+│   └── iccas_{date}.csv   Dataset with cases/deaths updated to a specific {date}
+└── iccas_full.csv         Concatenation of all datasets iccas_{date}.csv
 ```
-The full dataset is obtained by concatenating all datasets in `by-date` and has
-an additional `date` column. 
 
 
 ## Dataset details
 
+Below, `{sex}` can be `male` or `female`.
+
 Of course, all numerical values are relative to the first two fields: the date
 and the age group.
 
-Below, `{sex}` can be `male` or `female`.
-
 | Column                    | Description                                                                                  |
 |---------------------------|----------------------------------------------------------------------------------------------|
-| `date`                    | **(Only in `iccas_full.csv`)** Date the format `YYYY-MM-DD`                                  |
-| `age_group`               | Values: `"0-9", "10-19", ..., "80-89", ">=90", unknown`                                      |
+| `date`                    | Italian local time in ISO-8601 format `yyyy-mm-ddThh:mm`                                     |
+| `age_group`               | Values: `"0-9", "10-19", ..., "80-89", ">=90", "unknown"`                                    |
 | `cases`                   | Number of confirmed cases (both sexes + unknown-sex; active + closed)                        |
 | `deaths`                  | Number of deaths (both sexes + unknown-sex)                                                  |
 | `{sex}_cases`             | Number of cases for `{sex}`                                                                  |
 | `{sex}_deaths`            | Number of cases ended up in death for `{sex}`                                                |
-| `cases_percentage`        | `100 * cases_of_age_group / all_cases`                                                       |
-| `deaths_percentage`       | `100 * deaths_of_age_group / all_deaths`                                                     |
+| `cases_percentage`        | `100 * cases_in_age_group / all_cases`                                                       |
+| `deaths_percentage`       | `100 * deaths_in_age_group / all_deaths`                                                     |
 | `fatality_rate`           | `100 * deaths / cases`                                                                       |
 | `{sex}_cases_percentage`  | `100 * {sex}_cases / (male_cases + female_cases)`                                            |
 | `{sex}_deaths_percentage` | `100 * {sex}_deaths / (male_deaths + female_deaths)`                                         | 

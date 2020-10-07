@@ -2,6 +2,7 @@
 Download new reports and make all datasets, skipping existing ones.
 """
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import (
     List,
@@ -48,7 +49,13 @@ def extract_data_from_reports(reports_dir: Path = REPORTS_DIR,
         else:
             print(f"Making dataset for report of {date} ...")
             table = table_extractor(path)
+            # Check that the date on the filename matches that written in the PDF
+            pdf_date = table.date.iloc[0].strftime('%Y-%m-%d')
+            if pdf_date != date:
+                raise Exception(f'Date extracted from the PDF ({pdf_date}) is inconsistent with that '
+                                f'extracted from the filename ({date}). Give a look.')
             table = recompute_derived_columns(table)
+            table['date'] = table['date'].apply(_format_datetime)
             table.to_csv(out_path, index=False)
             new_dataset_paths.append(out_path)
             print('Saved to', out_path)
@@ -57,9 +64,12 @@ def extract_data_from_reports(reports_dir: Path = REPORTS_DIR,
     return new_dataset_paths
 
 
+def _format_datetime(dt: datetime) -> str:
+    return datetime.isoformat(dt, timespec='minutes')
+
+
 def get_date_from_filename(fname):
-    # Note: of course, I could use splits here, but a regex makes this
-    # function shorter, more general and so more closed to modifications.
+    # Using a regex makes this function independent from the particular filename template
     match = re.search(r'(\d{4}-\d{2}-\d{2})', fname)
     if match is None:
         raise ValueError('filename does not contain a date: ' + fname)
@@ -74,27 +84,23 @@ def list_datasets_by_date(dirpath: Path) -> List[Tuple[str, Path]]:
 
 def make_dataset(input_dir=REPORTS_DATA_DIR,
                  output_dir=DATA_DIR):
-    date_path_pairs = list_datasets_by_date(input_dir)
-    if not date_path_pairs:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    out_path = get_dataset_path(dirpath=output_dir)
+
+    ordered_parts = [pd.read_csv(path, index_col='date')
+                     for _, path in list_datasets_by_date(input_dir)]
+    if not ordered_parts:
         print('No datasets found in', input_dir)
         return False
 
-    out_path = get_dataset_path(dirpath=output_dir)
-    iccas_by_date = {}
-    for date, path in date_path_pairs:
-        iccas_by_date[date] = pd.read_csv(path, index_col='age_group')
-
-    full = pd.concat(iccas_by_date.values(), axis=0,
-                     keys=iccas_by_date.keys(), names=['date', 'age_group'])
-
-    output_dir.mkdir(parents=True, exist_ok=True)
-    full.to_csv(out_path)
+    dataset = pd.concat(ordered_parts, axis=0)
+    dataset.to_csv(out_path)
     print('Full dataset written to', out_path)
     return out_path
 
 
 def recompute_derived_columns(x: pd.DataFrame) -> pd.DataFrame:
-    """ Recomputes all derived columns. This is mostly for sanity checking. """
+    """ Recomputes all derived columns. """
     derived_cols = list(cartesian_join(
         COLUMN_PREFIXES, ['cases_percentage', 'deaths_percentage', 'fatality_rate']))
     y = x.drop(columns=derived_cols)  # to avoid SettingWithCopy warning
@@ -124,15 +130,22 @@ def recompute_derived_columns(x: pd.DataFrame) -> pd.DataFrame:
     return y[x.columns]
 
 
-def get_latest_dataset_date(default: str = '') -> str:
-    dataset_list = list_datasets_by_date(REPORTS_DATA_DIR)
+def get_latest_data_date(dirpath=REPORTS_DATA_DIR, default: str = '') -> str:
+    if not dirpath.exists():
+        return default
+    dataset_list = list_datasets_by_date(dirpath)
     return dataset_list[-1][0] if dataset_list else default
 
 
 if __name__ == '__main__':
+    import argparse
     from download_reports import download_missing_reports
 
-    download_missing_reports(after=get_latest_dataset_date())
-    new_report_datasets = extract_data_from_reports(skip_existing=True)
-    if new_report_datasets:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-o', '--overwrite', action='store_true')
+    args = parser.parse_args()
+
+    download_missing_reports(after=get_latest_data_date())
+    new_data_paths = extract_data_from_reports(skip_existing=not args.overwrite)
+    if args.overwrite or new_data_paths:
         make_dataset()
