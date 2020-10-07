@@ -12,13 +12,14 @@ from urllib.parse import (
 )
 
 import requests
-from reagex import reagex
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 
 from common import (
     REPORTS_DIR,
-    get_report_path
+    get_report_path,
+    get_italian_date_pattern,
+    process_datetime_tokens
 )
 
 # Page from which reports URL are extracted
@@ -32,35 +33,18 @@ EXTRA_REPORT_URLS = {
     '2020-03-16': 'https://www.epicentro.iss.it/coronavirus/bollettino/Bollettino%20sorveglianza%20integrata%20COVID-19_16%20marzo%202020.pdf'
 }
 
-
-def _report_date_extractor():
-    italian_months = ('gennaio febbraio marzo aprile maggio giugno luglio agosto '
-                      'settembre ottobre novembre dicembre').split()
-    italian_month_as_num = dict(zip(italian_months, range(1, 13)))
-
-    # Used for extracting the report date from the pdf filename (kinda fragile but it works)
-    date_pattern = re.compile(
-        reagex(
-            r'{day}{_sep}{month}{_sep}{year}',
-            day=r'\d{1,2}', year=r'\d{4}',
-            month='|'.join(italian_months),
-            _sep='[-_ ]'),
-        re.IGNORECASE)
-
-    def extract_date_from_filename(fname):
-        normalized_fname = unquote(fname).lower()
-        match = date_pattern.search(normalized_fname)
-        if not match:
-            raise ValueError('the file name does not contains a date: %s' % fname)
-        groups = match.groupdict()
-        groups['day'] = int(groups['day'])
-        groups['month'] = italian_month_as_num[groups['month']]
-        return '{year}-{month:02d}-{day:02d}'.format(**groups)
-
-    return extract_date_from_filename
+# Used for extracting the report date from the pdf filename
+FILENAME_DATE_PATTERN = re.compile(
+    get_italian_date_pattern(sep='[-_ ]'), re.IGNORECASE)
 
 
-get_date_from_report_filename = _report_date_extractor()
+def get_date_from_report_url(fname: str) -> str:
+    normalized_fname = unquote(fname).lower()
+    match = FILENAME_DATE_PATTERN.search(normalized_fname)
+    if not match:
+        raise ValueError('the file name does not contain a date: %s' % fname)
+    datetime_dict = process_datetime_tokens(match.groupdict())
+    return '{year}-{month:02d}-{day:02d}'.format(**datetime_dict)
 
 
 def extract_report_urls_from(page_url=ISS_NEWS_URL, session=None):
@@ -108,7 +92,7 @@ def download_missing_reports(urls_by_date: Dict[str, str] = EXTRA_REPORT_URLS,
     session = get_http_session()
     fetched_urls = extract_report_urls_from(scrape_url, session) if scrape_url else []
     date2url = {
-        get_date_from_report_filename(url): url
+        get_date_from_report_url(url): url
         for url in fetched_urls
     }
     date2url.update(urls_by_date)
