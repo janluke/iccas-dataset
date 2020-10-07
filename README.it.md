@@ -17,7 +17,7 @@ da aprile, essi sono pubblicati solo una volta a settimana, solitamente ogni
 venerdì.
 
 
-## Updates
+## Aggiornamenti
 
 - **2020/10/07:** 
     - la colonna `date` include adesso anche l'ora (formato ISO, `yyyy-mm-ddThh:mm`).
