@@ -1,10 +1,11 @@
-# Italian Coronavirus Cases by Age group and Sex (ICCAS)
+# Casi Italiani di Coronavirus per fascia d'età e sesso
 
 _[Read it in English](README.md)_.
 
-Questa repository contiene dataset sul numero dei casi confermati di coronavirus
-e dei morti per/con coronavirus (Sars-CoV-2) in Italia disaggregati per fascia 
-d'età e sesso.
+Questa repository contiene dataset sul numero di casi italiani di Coronavirus 
+(e morti per/con Coronavirus) disaggregati per fascia d'età e sesso. 
+ICCAS è l'acronimo del nome inglese del dataset (*"Italian Coronavirus Cases by 
+Age group and Sex"*).
 
 I dati sono estratti (automaticamente) dai "documenti estesi" in formato pdf 
 (come [questo](https://www.epicentro.iss.it/coronavirus/bollettino/Bollettino-sorveglianza-integrata-COVID-19_30-marzo-2020.pdf)) 
