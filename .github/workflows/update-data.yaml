@@ -1,5 +1,5 @@
-# Fetch new report(s) and update files in the data folder.
-# Push all changes to a secondary branch and open a pull-request.
+# Fetch new report(s), update the data folder and push changes to the branch
+# that triggered the workflow ("master" in case of scheduled executions).
 name: Update data
 on:
   schedule:
@@ -12,9 +12,6 @@ jobs:
   update-data:
     runs-on: ubuntu-latest
     steps:
-      - name: Set environment variables
-        run:  echo "PR_BRANCH=auto-update-$( date -I )" >> $GITHUB_ENV
-
       - uses: actions/checkout@v2
 
       - name: Set up Python 3.8
@@ -39,17 +36,8 @@ jobs:
           git add data/
           git commit -m "Auto-update data"
 
-      - name: Push changes to a new branch
+      - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          branch: "${{ env.PR_BRANCH }}"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create a pull request
-        uses: repo-sync/pull-request@v2
-        with:
-          source_branch: "${{ env.PR_BRANCH }}"
-          pr_title: Auto-update data
-          pr_body: This PR was automatically created by a GitHub Action.
-          pr_allow_empty: false
+          branch: ${{ github.ref }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
