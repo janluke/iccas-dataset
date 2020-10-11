@@ -11,9 +11,14 @@ ISS in short. A link to the most recent report can be found in
 [this page](https://www.epicentro.iss.it/coronavirus/sars-cov-2-sorveglianza-dati)
 under section "Documento esteso".
 
-Reports were originally published twice per week; since april, they are 
-published only once per week, usually on Friday. There may be exceptions to this
-schedule though, e.g. in august one report was skipped.
+Reports were originally published by ISS twice per week; since april, they are 
+published only once per week, usually on ~~Friday~~ Saturday.
+
+This repository is automatically updated each Saturday at 12 am running a
+[GitHub workflow](.github/workflows/update-data.yaml).
+Of course, any change in the ISS website or in the structure of the PDF reports 
+may require adjustments in the code and, as a consequence, may cause a delay.
+
 
 ## Updates
 
@@ -68,14 +73,3 @@ and the age group.
   of cases, you should instead ignore cases of unknown age.
   
 - The same reasoning of the previous point applies to `deaths_percentage`.
-
-
-## How datasets are updated 
-
-This repository contains also the Python code used to fetch new reports, extract
-the data from them and generate the datasets. The main script is periodically 
-run by a GitHub Action [workflow](.github/workflows/update-data.yaml).
-At the moment, the workflow doesn't push changes directly into the master branch;
-instead, it creates a pull request that I can check. This is just a temporary 
-precaution, since the script already performs several sanity checks on the 
-extracted data.

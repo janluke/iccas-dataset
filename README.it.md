@@ -15,7 +15,12 @@ alla sezione "Documento esteso".
 
 I documenti estesi erano originariamente pubblicati due volte a settimana ma, 
 da aprile, essi sono pubblicati solo una volta a settimana, solitamente ogni
-venerdì.
+~~venerdì~~ sabato. 
+
+Questa repository viene aggiornata automaticamente ogni sabato alle 12:00 
+eseguendo un [GitHub workflow](.github/workflows/update-data.yaml).
+Ovviamente, cambiamenti al sito dell'ISS o ai report PDF potrebbero richiedere 
+modifiche al codice e causare di conseguenza un ritardo.
 
 
 ## Aggiornamenti
@@ -73,14 +78,3 @@ la data e la fascia d'età.
   età non nota nel denominatore.
   
 - Il ragionamento al punto precedente si applica analogamente a `deaths_percentage`. 
-
-
-## Come vengono aggiornati i dati?
-
-La cartella `src` contiene il codice usato per scaricare nuovi report,
-estrarre i dati e generare i dataset.  Lo script principale è eseguito 
-periodicamente all'interno di un [workflow](.github/workflows/update-data.yaml) 
-(GitHub Action). Attualmente, tale workflow non pubblica i nuovi dati direttamente
-nel ramo master della repository, bensì crea crea una pull request che io posso 
-controllare prima dell'approvazione. Si tratta di una precauzione temporanea, 
-dato che lo script stesso esegue già dei controlli sui dati estratti.
