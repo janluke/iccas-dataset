@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 from typing import Tuple
 
+import numpy
 import pandas as pd
 from PyPDF3 import PdfFileReader
 from reagex import reagex
@@ -83,7 +84,9 @@ class PyPDFTableExtractor(TableExtractor):
             row = [date, *values]
             rows.append(row)
         df = pd.DataFrame(rows, columns=['date', *COLUMNS])
-        return normalize_table(df)
+        df = normalize_table(df)
+        df = recompute_derived_columns(df)
+        return df
 
 
 def extract_text(pdf: PdfFileReader, page: int) -> str:
@@ -136,3 +139,36 @@ def convert_values(values, converters):
     if len(values) != len(converters):
         raise ValueError
     return [converter(value) for value, converter in zip(values, converters)]
+
+
+def recompute_derived_columns(x: pd.DataFrame) -> pd.DataFrame:
+    """ Recomputes all derived columns. """
+    derived_cols = list(cartesian_join(
+        COLUMN_PREFIXES, ['cases_percentage', 'deaths_percentage', 'fatality_rate']))
+
+    y = x.copy()
+    total_cases = x['cases'].sum()
+    total_deaths = x['deaths'].sum()
+    y['cases_percentage'] = x['cases'] / total_cases * 100
+    y['deaths_percentage'] = x['deaths'] / total_deaths * 100
+    y['fatality_rate'] = x['deaths'] / x['cases'] * 100
+
+    # REMEMBER: male_cases + female_cases != total_cases,
+    # because total_cases also includes cases of unknown sex
+    for what in ['cases', 'deaths']:
+        total = x[f'male_{what}'] + x[f'female_{what}']
+        denominator = total.replace(0, 1)  # avoid division by 0
+        for sex in ['male', 'female']:
+            y[f'{sex}_{what}_percentage'] = x[f'{sex}_{what}'] / denominator * 100
+
+    for sex in ['male', 'female']:
+        y[f'{sex}_fatality_rate'] = x[f'{sex}_deaths'] / x[f'{sex}_cases'] * 100
+
+    # sanity check
+    for col in derived_cols:
+        if not numpy.allclose(y[col], x[col], atol=0.1):
+            raise TableExtractionError(
+                "recomputed derived columns don't match columns in the report:\n"
+                + str(pd.DataFrame({'recomputed': y[col], 'original': x[col]})))
+
+    return y

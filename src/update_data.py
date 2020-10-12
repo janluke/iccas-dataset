@@ -9,7 +9,6 @@ from typing import (
     Tuple
 )
 
-import numpy
 import pandas as pd
 
 from common import (
@@ -17,13 +16,11 @@ from common import (
     REPORTS_DIR,
     REPORTS_DATA_DIR,
     get_dataset_path,
-    get_report_data_path,
-    cartesian_join
+    get_report_data_path
 )
 from table_extraction import (
     TableExtractor,
-    PyPDFTableExtractor,
-    COLUMN_PREFIXES
+    PyPDFTableExtractor
 )
 
 
@@ -54,7 +51,6 @@ def extract_data_from_reports(reports_dir: Path = REPORTS_DIR,
             if pdf_date != date:
                 raise Exception(f'Date extracted from the PDF ({pdf_date}) is inconsistent with that '
                                 f'extracted from the filename ({date}). Give a look.')
-            table = recompute_derived_columns(table)
             table['date'] = table['date'].apply(_format_datetime)
             table.to_csv(out_path, index=False)
             new_dataset_paths.append(out_path)
@@ -97,37 +93,6 @@ def make_dataset(input_dir=REPORTS_DATA_DIR,
     dataset.to_csv(out_path)
     print('Full dataset written to', out_path)
     return out_path
-
-
-def recompute_derived_columns(x: pd.DataFrame) -> pd.DataFrame:
-    """ Recomputes all derived columns. """
-    derived_cols = list(cartesian_join(
-        COLUMN_PREFIXES, ['cases_percentage', 'deaths_percentage', 'fatality_rate']))
-    y = x.drop(columns=derived_cols)  # to avoid SettingWithCopy warning
-
-    total_cases = x['cases'].sum()
-    total_deaths = x['deaths'].sum()
-    y['cases_percentage'] = x['cases'] / total_cases * 100
-    y['deaths_percentage'] = x['deaths'] / total_deaths * 100
-    y['fatality_rate'] = x['deaths'] / x['cases'] * 100
-
-    # REMEMBER: male_cases + female_cases != total_cases,
-    # because total_cases also includes cases of unknown sex
-    for what in ['cases', 'deaths']:
-        total = x[f'male_{what}'] + x[f'female_{what}']
-        denominator = total.replace(0, 1)  # avoid division by 0
-        for sex in ['male', 'female']:
-            y[f'{sex}_{what}_percentage'] = x[f'{sex}_{what}'] / denominator * 100
-
-    for sex in ['male', 'female']:
-        y[f'{sex}_fatality_rate'] = x[f'{sex}_deaths'] / x[f'{sex}_cases'] * 100
-
-    # sanity check
-    for col in derived_cols:
-        assert numpy.allclose(y[col], x[col], atol=0.1), \
-            '\n' + str(pd.DataFrame({'recomputed': y[col], 'original': x[col]}))
-
-    return y[x.columns]
 
 
 def get_latest_data_date(dirpath=REPORTS_DATA_DIR, default: str = '') -> str:
