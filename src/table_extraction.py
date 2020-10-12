@@ -30,9 +30,14 @@ def to_float(s):
 
 COLUMN_PREFIXES = ('male_', 'female_', '')
 COLUMN_FIELDS = ('cases', 'cases_percentage', 'deaths', 'deaths_percentage', 'fatality_rate')
-COLUMNS = ('age_group', *cartesian_join(COLUMN_PREFIXES, COLUMN_FIELDS))
+DERIVED_COLUMNS = list(cartesian_join(
+        COLUMN_PREFIXES, ['cases_percentage', 'deaths_percentage', 'fatality_rate']))
+
+# Report table columns
+INPUT_COLUMNS = ('age_group', *cartesian_join(COLUMN_PREFIXES, COLUMN_FIELDS))
 COLUMN_CONVERTERS = [str] + [to_int, to_float, to_int, to_float, to_float] * 3  # noqa
-CONVERTER_BY_COLUMN = dict(zip(COLUMNS, COLUMN_CONVERTERS))
+# Output DataFrame columns
+OUTPUT_COLUMNS = ('date', *INPUT_COLUMNS)
 
 # Useful to find the page containing the table
 TABLE_CAPTION_PATTERN = re.compile(
@@ -75,7 +80,7 @@ class PyPDFTableExtractor(TableExtractor):
         raw_data = raw_data.replace(', ', ',')  # from 28/09, they write "1,5" as "1, 5"
         tokens = raw_data.split(' ')
         num_rows = 11
-        num_columns = len(COLUMNS)
+        num_columns = len(INPUT_COLUMNS)
         rows = []
         for i in range(num_rows):
             data_start = i * num_columns
@@ -83,10 +88,12 @@ class PyPDFTableExtractor(TableExtractor):
             values = convert_values(tokens[data_start:end], COLUMN_CONVERTERS)
             row = [date, *values]
             rows.append(row)
-        df = pd.DataFrame(rows, columns=['date', *COLUMNS])
-        df = normalize_table(df)
-        df = recompute_derived_columns(df)
-        return df
+        report_data = pd.DataFrame(rows, columns=['date', *INPUT_COLUMNS])
+        report_data = normalize_table(report_data)
+        output_data = compute_derived_columns(report_data)
+        check_recomputed_columns_match_extracted_ones(    # sanity check
+            extracted=report_data, recomputed=output_data)
+        return output_data
 
 
 def extract_text(pdf: PdfFileReader, page: int) -> str:
@@ -125,7 +132,7 @@ def normalize_table(table: pd.DataFrame) -> pd.DataFrame:
     return table
 
 
-def sanity_check_with_totals(table: pd.DataFrame, totals):
+def check_sum_of_counts_gives_totals(table: pd.DataFrame, totals: pd.DataFrame):
     columns = cartesian_join(COLUMN_PREFIXES, ['cases', 'deaths'])
     for col in columns:
         actual_sum = table[col].sum()
@@ -141,11 +148,8 @@ def convert_values(values, converters):
     return [converter(value) for value, converter in zip(values, converters)]
 
 
-def recompute_derived_columns(x: pd.DataFrame) -> pd.DataFrame:
-    """ Recomputes all derived columns. """
-    derived_cols = list(cartesian_join(
-        COLUMN_PREFIXES, ['cases_percentage', 'deaths_percentage', 'fatality_rate']))
-
+def compute_derived_columns(x: pd.DataFrame) -> pd.DataFrame:
+    """ Returns a new DataFrame with all derived columns (re)computed. """
     y = x.copy()
     total_cases = x['cases'].sum()
     total_deaths = x['deaths'].sum()
@@ -164,11 +168,15 @@ def recompute_derived_columns(x: pd.DataFrame) -> pd.DataFrame:
     for sex in ['male', 'female']:
         y[f'{sex}_fatality_rate'] = x[f'{sex}_deaths'] / x[f'{sex}_cases'] * 100
 
-    # sanity check
-    for col in derived_cols:
-        if not numpy.allclose(y[col], x[col], atol=0.1):
-            raise TableExtractionError(
-                "recomputed derived columns don't match columns in the report:\n"
-                + str(pd.DataFrame({'recomputed': y[col], 'original': x[col]})))
+    return y[list(OUTPUT_COLUMNS)]   # ensure columns are in the right order
 
-    return y
+
+def check_recomputed_columns_match_extracted_ones(
+    extracted: pd.DataFrame,
+    recomputed: pd.DataFrame
+):
+    for col in DERIVED_COLUMNS:
+        if not numpy.allclose(recomputed[col], extracted[col], atol=0.1):
+            raise TableExtractionError(
+                "recomputed derived columns don't match columns extracted from the report:\n"
+                + str(pd.DataFrame({'recomputed': recomputed[col], 'extracted': extracted[col]})))
