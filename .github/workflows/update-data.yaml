@@ -4,7 +4,7 @@ name: Update data
 on:
   schedule:
     # cron syntax: <minute> <hour> <day-of-the-year> <month> <day-of-the-week>
-    - cron: '0 12 * * 6'    # run each saturday at 12:00
+    - cron: '0 10 * * 6'    # run each saturday at 10:00 UTC (12:00 CEST)
 
   workflow_dispatch:        # trigger a run manually from GitHub
 

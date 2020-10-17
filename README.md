@@ -14,7 +14,7 @@ under section "Documento esteso".
 Reports were originally published by ISS twice per week; since april, they are 
 published only once per week, usually on ~~Friday~~ Saturday.
 
-This repository is automatically updated each Saturday at 12 am running a
+This repository is automatically updated each Saturday at 12 am (CEST) running a
 [GitHub workflow](.github/workflows/update-data.yaml).
 Of course, any change in the ISS website or in the structure of the PDF reports 
 may require adjustments in the code and, as a consequence, may cause a delay.
