@@ -16,15 +16,18 @@ from common import (
 )
 
 
-def to_int(s):
-    if not s:
-        return math.nan
+def to_int(s: str) -> int:
+    if s == '-':  # report of 2020-10-20
+        return 0
     return int(s.replace('.', '').replace(' ', ''))
 
 
-def to_float(s):
+def to_float(s: str) -> float:
     if not s:
+        # This case was useful on a previous version of the script that read the row with totals
         return math.nan
+    if s == '-':  # report of 2020-10-20
+        return 0.0
     return float(s.replace(',', '.'))
 
 
