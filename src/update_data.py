@@ -52,7 +52,7 @@ def extract_data_from_reports(reports_dir: Path = REPORTS_DIR,
                 raise Exception(f'Date extracted from the PDF ({pdf_date}) is inconsistent with that '
                                 f'extracted from the filename ({date}). Give a look.')
             table['date'] = table['date'].apply(_format_datetime)
-            table.to_csv(out_path, index=False)
+            table.to_csv(out_path, index=False, line_terminator='\n')
             new_dataset_paths.append(out_path)
             print('Saved to', out_path)
 
@@ -90,7 +90,7 @@ def make_dataset(input_dir=REPORTS_DATA_DIR,
         return False
 
     dataset = pd.concat(ordered_parts, axis=0)
-    dataset.to_csv(out_path)
+    dataset.to_csv(out_path, line_terminator='\n')
     print('Full dataset written to', out_path)
     return out_path
 
