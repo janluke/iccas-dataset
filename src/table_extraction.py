@@ -24,7 +24,8 @@ def to_int(s: str) -> int:
 
 def to_float(s: str) -> float:
     if not s:
-        # This case was useful on a previous version of the script that read the row with totals
+        # This case was useful on a previous version of the script (using Tabula)
+        # that read the row with totals which contains empty values
         return math.nan
     if s == '-':  # report of 2020-10-20
         return 0.0
@@ -32,13 +33,15 @@ def to_float(s: str) -> float:
 
 
 COLUMN_PREFIXES = ('male_', 'female_', '')
-COLUMN_FIELDS = ('cases', 'cases_percentage', 'deaths', 'deaths_percentage', 'fatality_rate')
+COLUMN_FIELDS = ('cases', 'cases_percentage',
+                 'deaths', 'deaths_percentage', 'fatality_rate')
 DERIVED_COLUMNS = list(cartesian_join(
-        COLUMN_PREFIXES, ['cases_percentage', 'deaths_percentage', 'fatality_rate']))
+    COLUMN_PREFIXES, ['cases_percentage', 'deaths_percentage', 'fatality_rate']))
 
 # Report table columns
 INPUT_COLUMNS = ('age_group', *cartesian_join(COLUMN_PREFIXES, COLUMN_FIELDS))
-COLUMN_CONVERTERS = [str] + [to_int, to_float, to_int, to_float, to_float] * 3  # noqa
+COLUMN_CONVERTERS = [str] + [
+    to_int, to_float, to_int, to_float, to_float] * 3  # type: ignore
 # Output DataFrame columns
 OUTPUT_COLUMNS = ('date', *INPUT_COLUMNS)
 
@@ -51,7 +54,7 @@ TABLE_CAPTION_PATTERN = re.compile(
 DATETIME_PATTERN = re.compile(
     get_italian_date_pattern(sep='[ ]?') + reagex(
         '[- ]* ore {hour}:{minute}',
-        hour='[o0-2]?[o0-9]|3[o0-1]',  # yes, in some reports they wrote 'o' instead of zero
+        hour='[o0-2]?[o0-9]|3[o0-1]',  # in some reports they wrote 'o' instead of zero
         minute='[o0-5][o0-9]'),
     re.IGNORECASE
 )
@@ -94,7 +97,7 @@ class PyPDFTableExtractor(TableExtractor):
         report_data = pd.DataFrame(rows, columns=['date', *INPUT_COLUMNS])
         report_data = normalize_table(report_data)
         output_data = compute_derived_columns(report_data)
-        check_recomputed_columns_match_extracted_ones(    # sanity check
+        check_recomputed_columns_match_extracted_ones(  # sanity check
             extracted=report_data, recomputed=output_data)
         return output_data
 
@@ -109,7 +112,7 @@ def extract_datetime(text: str) -> datetime:
     if match is None:
         raise TableExtractionError('extraction of report datetime failed')
     datetime_dict = process_datetime_tokens(match.groupdict())
-    return datetime(**datetime_dict)
+    return datetime(**datetime_dict)  # type: ignore
 
 
 def find_table_page(pdf: PdfFileReader) -> Tuple[str, int]:
@@ -119,7 +122,7 @@ def find_table_page(pdf: PdfFileReader) -> Tuple[str, int]:
     """
     num_pages = pdf.getNumPages()
 
-    for i in range(1, num_pages):  # skip the first page, the table is certainly not there
+    for i in range(1, num_pages):  # skip the first page, the table is not there
         text = extract_text(pdf, page=i)
         if TABLE_CAPTION_PATTERN.search(text):
             return text, i
@@ -171,7 +174,7 @@ def compute_derived_columns(x: pd.DataFrame) -> pd.DataFrame:
     for sex in ['male', 'female']:
         y[f'{sex}_fatality_rate'] = x[f'{sex}_deaths'] / x[f'{sex}_cases'] * 100
 
-    return y[list(OUTPUT_COLUMNS)]   # ensure columns are in the right order
+    return y[list(OUTPUT_COLUMNS)]  # ensure columns are in the right order
 
 
 def check_recomputed_columns_match_extracted_ones(
@@ -180,6 +183,10 @@ def check_recomputed_columns_match_extracted_ones(
 ):
     for col in DERIVED_COLUMNS:
         if not numpy.allclose(recomputed[col], extracted[col], atol=0.1):
+            sidebyside = pd.DataFrame({
+                'recomputed': recomputed[col],
+                'extracted': extracted[col]
+            })
             raise TableExtractionError(
-                "recomputed derived columns don't match columns extracted from the report:\n"
-                + str(pd.DataFrame({'recomputed': recomputed[col], 'extracted': extracted[col]})))
+                f"recomputed derived columns don't match columns extracted from"
+                f"the report:\n{sidebyside}")

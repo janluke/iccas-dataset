@@ -29,9 +29,9 @@ def extract_data_from_reports(reports_dir: Path = REPORTS_DIR,
                               table_extractor: TableExtractor = PyPDFTableExtractor(),
                               skip_existing=True) -> List[Path]:
     """
-    Extracts table data from PDF reports saved in `reports_dir` and generates one file per report
-    in `output_dir`. If `skip_existing` is `True`, all reports corresponding to existing datasets
-    (in `output_dir`) are ignored. 
+    Extracts table data from PDF reports saved in `reports_dir` and generates
+    one file per report in `output_dir`. If `skip_existing` is `True`, all
+    reports corresponding to existing datasets (in `output_dir`) are ignored.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
     new_dataset_paths = []
@@ -49,8 +49,9 @@ def extract_data_from_reports(reports_dir: Path = REPORTS_DIR,
             # Check that the date on the filename matches that written in the PDF
             pdf_date = table.date.iloc[0].strftime('%Y-%m-%d')
             if pdf_date != date:
-                raise Exception(f'Date extracted from the PDF ({pdf_date}) is inconsistent with that '
-                                f'extracted from the filename ({date}). Give a look.')
+                raise Exception(
+                    f'Date extracted from the PDF ({pdf_date}) is inconsistent '
+                    f'with that extracted from the filename ({date}). Give a look.')
             table['date'] = table['date'].apply(_format_datetime)
             table.to_csv(out_path, index=False, line_terminator='\n')
             new_dataset_paths.append(out_path)

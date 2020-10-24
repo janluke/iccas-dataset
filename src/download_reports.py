@@ -30,7 +30,7 @@ SKIP_REPORTS_TO_DATE = '2020-03-11'
 
 # Some reports may not be published in the ISS News page (by mistake).
 EXTRA_REPORT_URLS = {
-    '2020-03-16': 'https://www.epicentro.iss.it/coronavirus/bollettino/Bollettino%20sorveglianza%20integrata%20COVID-19_16%20marzo%202020.pdf'
+    '2020-03-16': 'https://www.epicentro.iss.it/coronavirus/bollettino/Bollettino%20sorveglianza%20integrata%20COVID-19_16%20marzo%202020.pdf'  # noqa
 }
 
 # Used for extracting the report date from the pdf filename
@@ -56,7 +56,9 @@ def extract_report_urls_from(page_url=ISS_NEWS_URL, session=None):
 
 def get_http_session(retries=3, backoff_factor=0.3,
                      status_forcelist=(500, 502, 504)) -> requests.Session:
-    """ Taken from: https://www.peterbe.com/plog/best-practice-with-retries-with-requests """
+    """
+    Taken from: https://www.peterbe.com/plog/best-practice-with-retries-with-requests
+    """
     session = requests.Session()
     retry = Retry(
         total=retries,
@@ -82,10 +84,10 @@ def download_missing_reports(urls_by_date: Dict[str, str] = EXTRA_REPORT_URLS,
                              output_dir: Path = REPORTS_DIR,
                              after: str = SKIP_REPORTS_TO_DATE):
     """
-    Downloads missing reports to `output_dir`. Report URLs are extracted from `scrape_url`
-    but you can use `urls_by_date` to override them or add new ones.
-    All reports relative to any date <= `after`, and in any case <= `SKIP_REPORTS_TO_DATE`,
-    are ignored.
+    Downloads missing reports to `output_dir`. Report URLs are extracted from
+    `scrape_url` but you can use `urls_by_date` to override them or add new ones.
+    All reports relative to any date <= `after` and in any case less or equal to
+    `SKIP_REPORTS_TO_DATE` are ignored.
     """
     after = max(after, SKIP_REPORTS_TO_DATE)
     Path(output_dir).mkdir(parents=True, exist_ok=True)

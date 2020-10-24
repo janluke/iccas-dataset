@@ -9,8 +9,8 @@ REPORT_FNAME = '{date}.pdf'
 
 DATA_DIR = Path(PROJECT_DIR, 'data')
 REPORTS_DATA_DIR = Path(DATA_DIR, 'by-date')
-REPORT_DATA_FNAME = 'iccas_{date}'  # dataset containing data extracted from a single report
-DATASET_FNAME = 'iccas_full'  # dataset containing data extracted from all reports
+REPORT_DATA_FNAME = 'iccas_{date}'  # contains data extracted from a single report
+DATASET_FNAME = 'iccas_full'  # contains data extracted from all reports
 
 ITALIAN_MONTHS = ('gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno',
                   'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre')
