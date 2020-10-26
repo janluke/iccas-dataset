@@ -42,21 +42,21 @@ data
 
 ## Descrizione del dataset
 
-Nella seguente tabella, `{sex}` (sesso) può essere `male` (maschio) or `female` 
+Tutti i campi numerici sono relativi ai primi due campi in tabella:
+la data e la fascia d'età.
+
+Nella seguente tabella, `{sex}` (sesso) può essere `male` (maschio) o `female` 
 (femmina). Per esempio, la voce `{sex}_cases` indica che nel dataset ci sono due
 colonne: `male_cases` e `female_cases`.
 
-Naturalmente tutti i campi numerici sono relativi ai primi due campi in tabella:
-la data e la fascia d'età.
-
-| Column                    | Description                                                                                  |
+| Colonna                   | Descrizione                                                                                  |
 |---------------------------|----------------------------------------------------------------------------------------------|
 | `date`                    | Data e ora locale italiana in formato ISO-8601 `yyyy-mm-ddThh:mm`                            |
 | `age_group`               | Fascia d'età: `"0-9", "10-19", ..., "80-89", ">=90", "unknown"`                              |
-| `cases`                   | Numero di casi confermati (entrambi i sessi + sesso non noto; aperti + chiusi)               |
-| `deaths`                  | Numero di morti (entrambi i sessi + sesso non noto)                                          |
-| `{sex}_cases`             | Numero di casi di un certo sesso ({sex})                                                     |
-| `{sex}_deaths`            | Numero di morti di un certo sesso ({sex})                                                    |
+| `cases`                   | Numero di casi confermati (inclusi quelli di sesso non noto) dall'inizio della pandemia      |
+| `deaths`                  | Numero di morti (inclusi quelli di sesso non noto) dall'inizio della pandemia                |
+| `{sex}_cases`             | Numero di casi di un certo sesso ({sex}) dall'inizio della pandemia                          |
+| `{sex}_deaths`            | Numero di morti di un certo sesso ({sex}) dall'inizio della pandemia                         |
 | `cases_percentage`        | Il campo `cases` in percentuale: `100 * casi_fascia_età / totale_casi`;                      |
 | `deaths_percentage`       | Il campo `deaths` in percentuale`: 100 * morti_fascia_di_età / totale_morti`;                |
 | `fatality_rate`           | `100 * morti / casi` (Letalità)                                                              |

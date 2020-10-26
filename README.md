@@ -40,19 +40,18 @@ data
 
 ## Dataset details
 
-Below, `{sex}` can be `male` or `female`.
+All numerical values are relative to the first two fields: the date and the age group.
 
-Of course, all numerical values are relative to the first two fields: the date
-and the age group.
+Below, `{sex}` can be `male` or `female`.
 
 | Column                    | Description                                                                                  |
 |---------------------------|----------------------------------------------------------------------------------------------|
 | `date`                    | Italian local time in ISO-8601 format `yyyy-mm-ddThh:mm`                                     |
 | `age_group`               | Values: `"0-9", "10-19", ..., "80-89", ">=90", "unknown"`                                    |
-| `cases`                   | Number of confirmed cases (both sexes + unknown-sex; active + closed)                        |
-| `deaths`                  | Number of deaths (both sexes + unknown-sex)                                                  |
-| `{sex}_cases`             | Number of cases for `{sex}`                                                                  |
-| `{sex}_deaths`            | Number of cases ended up in death for `{sex}`                                                |
+| `cases`                   | Number of confirmed cases (including cases of unknown sex) since the start of the pandemic   |
+| `deaths`                  | Number of deaths (including cases of unknown sex) since the start of the pandemic            |
+| `{sex}_cases`             | Number of `{sex}` cases since the start of the pandemic                                      |
+| `{sex}_deaths`            | Number of `{sex}` cases ended up in death since the start of the pandemic                    |
 | `cases_percentage`        | `100 * cases_in_age_group / all_cases`                                                       |
 | `deaths_percentage`       | `100 * deaths_in_age_group / all_deaths`                                                     |
 | `fatality_rate`           | `100 * deaths / cases`                                                                       |
