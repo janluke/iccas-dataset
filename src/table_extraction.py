@@ -2,7 +2,11 @@ import abc
 import math
 import re
 from datetime import datetime
-from typing import Tuple
+from typing import (
+    Any,
+    Callable,
+    Tuple
+)
 
 import numpy
 import pandas as pd
@@ -40,8 +44,9 @@ DERIVED_COLUMNS = list(cartesian_join(
 
 # Report table columns
 INPUT_COLUMNS = ('age_group', *cartesian_join(COLUMN_PREFIXES, COLUMN_FIELDS))
-COLUMN_CONVERTERS = [str] + [
-    to_int, to_float, to_int, to_float, to_float] * 3  # type: ignore
+Converter = Callable[[str], Any]
+FIELD_CONVERTERS = [to_int, to_float, to_int, to_float, to_float]
+COLUMN_CONVERTERS = [lambda x: x] + FIELD_CONVERTERS * 3
 # Output DataFrame columns
 OUTPUT_COLUMNS = ('date', *INPUT_COLUMNS)
 
