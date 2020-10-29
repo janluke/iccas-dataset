@@ -12,13 +12,13 @@ from reagex import reagex
 from common import cartesian_join, get_italian_date_pattern, process_datetime_tokens
 
 
-def to_int(s: str) -> int:
+def parse_int(s: str) -> int:
     if s == "-":  # report of 2020-10-20
         return 0
     return int(s.replace(".", "").replace(" ", ""))
 
 
-def to_float(s: str) -> float:
+def parse_float(s: str) -> float:
     if not s:
         # This case was useful on a previous version of the script (using Tabula)
         # that read the row with totals which contains empty values
@@ -45,7 +45,7 @@ DERIVED_COLUMNS = list(
 # Report table columns
 INPUT_COLUMNS = ("age_group", *cartesian_join(COLUMN_PREFIXES, COLUMN_FIELDS))
 Converter = Callable[[str], Any]
-FIELD_CONVERTERS = [to_int, to_float, to_int, to_float, to_float]
+FIELD_CONVERTERS = [parse_int, parse_float, parse_int, parse_float, parse_float]
 COLUMN_CONVERTERS = [lambda x: x] + FIELD_CONVERTERS * 3
 # Output DataFrame columns
 OUTPUT_COLUMNS = ("date", *INPUT_COLUMNS)
