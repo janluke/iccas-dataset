@@ -71,9 +71,40 @@ class TableExtractionError(Exception):
 
 
 class TableExtractor(abc.ABC):
+    """
+    Having a base class may seem unnecessary now that I have a single implementation,
+    but, trust me, it was convenient in the past and it may turn useful again in the
+    future. Furthermore, there's no harm in it.
+    """
+
     @abc.abstractmethod
-    def extract(self, report_path) -> pd.DataFrame:
+    def _extract(self, report_path) -> pd.DataFrame:
+        """Extracts the report table as it is, adding only the "date" column."""
         pass
+
+    def extract(self, report_path) -> pd.DataFrame:
+        """
+        Extracts the report table and returns it as a DataFrame after renaming
+        stuff (remove non-ASCII characters, translate italian to english) and
+        recomputing derived columns. It also performs some sanity checks on the
+        extracted data.
+        """
+        table = self._extract(report_path)
+        # Replace '≥90' with ascii equivalent '>=90'
+        table.at[9, "age_group"] = ">=90"
+        # Replace 'Età non nota' with english translation
+        table.at[10, "age_group"] = "unknown"
+
+        # Ensure (male_{something} + female_{something} <= {something})
+        # Remember that {something} includes people of unknown sex
+        check_sum_of_males_and_females_not_more_than_total(table)
+
+        # Recompute derived columns for maximum precision and sanity checking
+        refined_table = recompute_derived_columns(table)
+        check_recomputed_columns_match_extracted_ones(
+            original=table, recomputed=refined_table
+        )
+        return refined_table
 
     def __call__(self, report_path):
         return self.extract(report_path)
@@ -82,7 +113,7 @@ class TableExtractor(abc.ABC):
 class PyPDFTableExtractor(TableExtractor):
     unknown_age_matcher = re.compile("(età non nota|non not[ao])", flags=re.IGNORECASE)
 
-    def extract(self, report_path) -> pd.DataFrame:
+    def _extract(self, report_path) -> pd.DataFrame:
         pdf = PdfFileReader(str(report_path))
         date = extract_datetime(extract_text(pdf, page=0))
         page, _ = find_table_page(pdf)
@@ -101,12 +132,7 @@ class PyPDFTableExtractor(TableExtractor):
             row = [date, *values]
             rows.append(row)
         report_data = pd.DataFrame(rows, columns=["date", *INPUT_COLUMNS])
-        report_data = normalize_table(report_data)
-        output_data = compute_derived_columns(report_data)
-        check_recomputed_columns_match_extracted_ones(  # sanity check
-            extracted=report_data, recomputed=output_data
-        )
-        return output_data
+        return report_data
 
 
 def extract_text(pdf: PdfFileReader, page: int) -> str:
@@ -123,7 +149,8 @@ def extract_datetime(text: str) -> datetime:
 
 
 def find_table_page(pdf: PdfFileReader) -> Tuple[str, int]:
-    """Finds the page containing the data table, then returns a tuple with:
+    """
+    Finds the page containing the data table, then returns a tuple with:
     - the text extracted from the page, pre-processed
     - the page number (0-based)
     """
@@ -137,22 +164,14 @@ def find_table_page(pdf: PdfFileReader) -> Tuple[str, int]:
         raise TableExtractionError("could not find the table in the pdf")
 
 
-def normalize_table(table: pd.DataFrame) -> pd.DataFrame:
-    # Replace '≥90' with ascii equivalent '>=90'
-    table.at[9, "age_group"] = ">=90"
-    # Replace 'Età non nota' with english translation
-    table.at[10, "age_group"] = "unknown"
-    return table
-
-
-def check_sum_of_counts_gives_totals(table: pd.DataFrame, totals: pd.DataFrame):
-    columns = cartesian_join(COLUMN_PREFIXES, ["cases", "deaths"])
-    for col in columns:
-        actual_sum = table[col].sum()
-        if actual_sum != totals[col]:
+def check_sum_of_males_and_females_not_more_than_total(table: pd.DataFrame):
+    for what in ["cases", "deaths"]:
+        males_plus_females = table[[f"male_{what}", f"female_{what}"]].sum(axis=1)
+        deltas = table[what] - males_plus_females
+        if (deltas < 0).any():
             raise TableExtractionError(
-                f'column "{col}" sum() is inconsistent with the value reported '
-                f"in the last row of the table: {actual_sum} != {totals[col]}"
+                f"table[male_{what}] + table[female_{what}] > table[{what}] for some "
+                f"age groups. Deltas:\n{deltas}"
             )
 
 
@@ -162,7 +181,7 @@ def convert_values(values, converters):
     return [converter(value) for value, converter in zip(values, converters)]
 
 
-def compute_derived_columns(x: pd.DataFrame) -> pd.DataFrame:
+def recompute_derived_columns(x: pd.DataFrame) -> pd.DataFrame:
     """ Returns a new DataFrame with all derived columns (re)computed. """
     y = x.copy()
     total_cases = x["cases"].sum()
@@ -186,14 +205,36 @@ def compute_derived_columns(x: pd.DataFrame) -> pd.DataFrame:
 
 
 def check_recomputed_columns_match_extracted_ones(
-    extracted: pd.DataFrame, recomputed: pd.DataFrame
+    original: pd.DataFrame, recomputed: pd.DataFrame
 ):
     for col in DERIVED_COLUMNS:
-        if not numpy.allclose(recomputed[col], extracted[col], atol=0.1):
+        if not numpy.allclose(recomputed[col], original[col], atol=0.1):
             sidebyside = pd.DataFrame(
-                {"recomputed": recomputed[col], "extracted": extracted[col]}
+                {"recomputed": recomputed[col], "extracted": original[col]}
             )
             raise TableExtractionError(
                 f"recomputed derived columns don't match columns extracted from"
                 f"the report:\n{sidebyside}"
+            )
+
+
+def check_sum_of_counts_gives_totals(table: pd.DataFrame, totals: pd.DataFrame):
+    """
+    CURRENTLY NOT USED. This was useful in a previous version of the script using
+    Tabula, which extracted the row with totals. With the current implementation,
+    parsing the row with totals (last PDF table row) increases the chances of a
+    parsing failure.
+    TODO: I may even remove this and retrieve it from git history if I need it.
+
+    Args:
+        table: the data extracted from the report
+        totals: the row with totals (last row in the PDF table)
+    """
+    columns = cartesian_join(COLUMN_PREFIXES, ["cases", "deaths"])
+    for col in columns:
+        actual_sum = table[col].sum()
+        if actual_sum != totals[col]:
+            raise TableExtractionError(
+                f'column "{col}" sum() is inconsistent with the value reported '
+                f"in the last row of the table: {actual_sum} != {totals[col]}"
             )
