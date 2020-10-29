@@ -49,17 +49,15 @@ def extract_data_from_reports(
                     f"Date extracted from the PDF ({pdf_date}) is inconsistent "
                     f"with that extracted from the filename ({date}). Give a look."
                 )
-            table["date"] = table["date"].apply(_format_datetime)
+            table["date"] = table["date"].apply(
+                lambda dt: datetime.isoformat(dt, timespec="minutes")
+            )
             table.to_csv(out_path, index=False, line_terminator="\n")
             new_dataset_paths.append(out_path)
             print("Saved to", out_path)
 
     print("\nNew datasets written:", new_dataset_paths, end="\n\n")
     return new_dataset_paths
-
-
-def _format_datetime(dt: datetime) -> str:
-    return datetime.isoformat(dt, timespec="minutes")
 
 
 def get_date_from_filename(fname):
