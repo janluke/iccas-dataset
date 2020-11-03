@@ -36,8 +36,15 @@ modifiche al codice e causare di conseguenza un ritardo.
 data
 ├── by-date                     
 │   └── iccas_{data}.csv   Dataset con dati aggiornati a giorno {data}
+├── util       
+│   ├── italian_population_by_age_2020.csv
+│   │                      Numero di italiani per età (0, 1, ..., 99, >=100) [1]
+│   └── italian_population_by_age_group_2020.csv
+│                          Numero di italiani per fascia d'età (0-9, ..., 80-89, >=90) [1]
 └── iccas_full.csv         Concatenazione di tutti i dataset iccas_{data}.csv
 ```
+
+[1] Fonte: [ISTAT](https://www.istat.it/it/popolazione-e-famiglie?dati).
 
 
 ## Descrizione del dataset

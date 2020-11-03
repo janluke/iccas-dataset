@@ -34,9 +34,13 @@ The `data` folder is structured as follows:
 data
 ├── by-date                    
 │   └── iccas_{date}.csv   Dataset with cases/deaths updated to a specific {date}
+├── util       
+│   ├── italian_population_by_age_2020.csv [1]
+│   └── italian_population_by_age_group_2020.csv [1]
 └── iccas_full.csv         Concatenation of all datasets iccas_{date}.csv
 ```
 
+[1] Source: [ISTAT](https://www.istat.it/it/popolazione-e-famiglie?dati).
 
 ## Dataset details
 
