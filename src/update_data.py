@@ -1,7 +1,8 @@
 """
 Download new reports and make all datasets, skipping existing ones.
 """
-import re
+import logging
+
 from datetime import datetime
 from pathlib import Path
 from typing import List
@@ -18,6 +19,8 @@ from common import (
     list_datasets_by_date,
 )
 from table_extraction import TableExtractor, PyPDFTableExtractor
+
+logger = logging.getLogger(__name__)
 
 
 def extract_data_from_reports(
@@ -38,11 +41,10 @@ def extract_data_from_reports(
         path = reports_dir / relpath
         date = relpath.stem
         out_path = get_report_data_path(date, dirpath=output_dir)
-        print("-" * 80)
         if skip_existing and out_path.exists():
-            print(f"Dataset for report of {date} already exists")
+            logger.info("Dataset for report of %s already exists", date)
         else:
-            print(f"Making dataset for report of {date} ...")
+            logger.info("Making dataset for report of %s", date)
             table = table_extractor(path)
             # Check that the date on the filename matches that written in the PDF
             pdf_date = table.date.iloc[0].strftime("%Y-%m-%d")
@@ -56,25 +58,10 @@ def extract_data_from_reports(
             )
             table.to_csv(out_path, index=False, line_terminator="\n")
             new_dataset_paths.append(out_path)
-            print("Saved to", out_path)
+            logger.info("Dataset saved to: %s", out_path)
 
-    print("\nNew datasets written:", new_dataset_paths, end="\n\n")
+    logger.info("New datasets written: %s\n", new_dataset_paths)
     return new_dataset_paths
-
-
-def get_date_from_filename(fname):
-    # Using a regex makes this function independent from the particular filename template
-    match = re.search(r"(\d{4}-\d{2}-\d{2})", fname)
-    if match is None:
-        raise ValueError("filename does not contain a date: " + fname)
-    return match.group(1)
-
-
-def list_datasets_by_date(dirpath: Path) -> List[Tuple[str, Path]]:
-    date_path = [
-        (get_date_from_filename(path.name), path) for path in dirpath.iterdir()
-    ]
-    return sorted(date_path, key=lambda p: p[0])
 
 
 def make_dataset(input_dir=REPORTS_DATA_DIR, output_dir=DATA_DIR):
@@ -86,20 +73,13 @@ def make_dataset(input_dir=REPORTS_DATA_DIR, output_dir=DATA_DIR):
         for _, path in list_datasets_by_date(input_dir)
     ]
     if not ordered_parts:
-        print("No datasets found in", input_dir)
+        logger.info("No datasets found in", input_dir)
         return False
 
     dataset = pd.concat(ordered_parts, axis=0)
     dataset.to_csv(out_path, line_terminator="\n")
-    print("Full dataset written to", out_path)
+    logger.info("Full dataset written to: %s", out_path)
     return out_path
-
-
-def get_latest_data_date(dirpath=REPORTS_DATA_DIR, default: str = "") -> str:
-    if not dirpath.exists():
-        return default
-    dataset_list = list_datasets_by_date(dirpath)
-    return dataset_list[-1][0] if dataset_list else default
 
 
 if __name__ == "__main__":
@@ -108,9 +88,18 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--overwrite", action="store_true")
+    parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
 
+    logging.basicConfig(
+        level=logging.DEBUG if args.debug else logging.INFO,
+        format="%(levelname)s: %(message)s"
+    )
+
     download_missing_reports(after=get_latest_data_date())
-    new_data_paths = extract_data_from_reports(skip_existing=not args.overwrite)
-    if args.overwrite or new_data_paths:
-        make_dataset()
+    change_list = extract_data_from_reports(skip_existing=not args.overwrite)
+    if args.overwrite or change_list:
+        path_full = make_dataset()
+        change_list.append(path_full)
+
+    print(' '.join(str(path) for path in change_list))
