@@ -4,7 +4,7 @@ Download new reports and make all datasets, skipping existing ones.
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import List, Tuple
+from typing import List
 
 import pandas as pd
 
@@ -13,7 +13,9 @@ from common import (
     REPORTS_DIR,
     REPORTS_DATA_DIR,
     get_dataset_path,
+    get_latest_data_date,
     get_report_data_path,
+    list_datasets_by_date,
 )
 from table_extraction import TableExtractor, PyPDFTableExtractor
 

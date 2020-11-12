@@ -1,5 +1,6 @@
+import re
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Tuple
 from reagex import reagex
 
 PROJECT_DIR = Path(__file__).parent.parent
@@ -61,3 +62,25 @@ def cartesian_join(*string_iterables, sep=""):
     from itertools import product
 
     return (sep.join(iterable) for iterable in product(*string_iterables))
+
+
+def get_date_from_filename(fname):
+    # Using a regex makes this function independent from the particular filename template
+    match = re.search(r"(\d{4}-\d{2}-\d{2})", fname)
+    if match is None:
+        raise ValueError("filename does not contain a date: " + fname)
+    return match.group(1)
+
+
+def list_datasets_by_date(dirpath: Path) -> List[Tuple[str, Path]]:
+    date_path = [
+        (get_date_from_filename(path.name), path) for path in dirpath.iterdir()
+    ]
+    return sorted(date_path, key=lambda p: p[0])
+
+
+def get_latest_data_date(dirpath=REPORTS_DATA_DIR, default: str = "") -> str:
+    if not dirpath.exists():
+        return default
+    dataset_list = list_datasets_by_date(dirpath)
+    return dataset_list[-1][0] if dataset_list else default
