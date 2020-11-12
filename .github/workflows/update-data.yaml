@@ -1,5 +1,6 @@
 # Fetch new report(s), update the data folder and push changes to the branch
 # that triggered the workflow ("master" in case of scheduled executions).
+# If no new reports are found, this workflow terminates with success.
 name: Update data
 on:
   schedule:
@@ -12,24 +13,27 @@ jobs:
   update-data:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
 
-      # TODO: cache dependencies.
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f src/requirements.txt ]; then pip install -r src/requirements.txt; fi
+      - name: Install dependencies  # Caching doesn't seem to help
+        run: pip install -r src/requirements.txt
 
-      - name: Download the new report and update datasets
-        run: python src/update_data.py
+      - name: Update the data if new reports were published
+        id: update-data
+        # Can't invoke the script inside echo string or the step will always succeed
+        # even if the script fails
+        run: >
+          UPDATED_FILES=$(python src/update_data.py)
+          && echo "::set-output name=updated-files::$UPDATED_FILES"
 
-      # If no new report was published, "git commit" will fail because no file has changed
       - name: Commit changes
+        if: steps.update-data.outputs.updated-files != ''
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -37,6 +41,7 @@ jobs:
           git commit -m "Auto-update data"
 
       - name: Push changes
+        if: steps.update-data.outputs.updated-files != ''
         uses: ad-m/github-push-action@master
         with:
           branch: ${{ github.ref }}
