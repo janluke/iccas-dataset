@@ -1,6 +1,6 @@
 # Casi Italiani di Coronavirus per fascia d'età e sesso
 
-![Update data](https://github.com/janLuke/iccas-dataset/workflows/Update%20data/badge.svg)
+[![Update data](https://github.com/janLuke/iccas-dataset/workflows/Update%20data/badge.svg)](https://github.com/janLuke/iccas-dataset/actions)
 
 _[Read it in English (Leggilo in Inglese)](README.md)_.
 
