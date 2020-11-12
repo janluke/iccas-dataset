@@ -1,6 +1,8 @@
 # Casi Italiani di Coronavirus per fascia d'età e sesso
 
-_[Read it in English](README.md)_.
+![Update data](https://github.com/janLuke/iccas-dataset/workflows/Update%20data/badge.svg)
+
+_[Read it in English (Leggilo in Inglese)](README.md)_.
 
 Questa repository contiene dataset sul numero di casi italiani di Coronavirus 
 (e morti per/con Coronavirus) disaggregati per fascia d'età e sesso. 
@@ -13,14 +15,11 @@ pubblicati dall'Istituto Superiore di Sanità (ISS). Un link al report più rece
 può essere trovato a [questa pagina](https://www.epicentro.iss.it/coronavirus/sars-cov-2-sorveglianza-dati)
 alla sezione "Documento esteso".
 
-I documenti estesi erano originariamente pubblicati due volte a settimana ma, 
-da aprile, essi sono pubblicati solo una volta a settimana, solitamente ogni
-~~venerdì~~ sabato. 
+I documenti estesi erano originariamente pubblicati due volte a settimana e sono
+adesso pubblicati una volta a settimana.
 
-Questa repository viene aggiornata automaticamente ogni sabato alle 12:00 
-eseguendo un [GitHub workflow](.github/workflows/update-data.yaml).
-Ovviamente, cambiamenti al sito dell'ISS o ai report PDF potrebbero richiedere 
-modifiche al codice e causare di conseguenza un ritardo.
+Questa repository è aggiornata automaticamente da un [workflow di GitHub](.github/workflows/update-data.yaml) 
+che viene eseguito regolarmente (si veda il workflow stesso per maggiori dettagli).
 
 
 ## Aggiornamenti

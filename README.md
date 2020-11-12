@@ -1,6 +1,8 @@
 # Italian Coronavirus Cases by Age group and Sex (ICCAS)
 
-_[Leggilo in italiano](README.it.md)._
+![Update data](https://github.com/janLuke/iccas-dataset/workflows/Update%20data/badge.svg)
+
+_[Leggilo in italiano (Read it in Italian)](README.it.md)._
 
 This repository contains datasets about the number of Italian Sars-CoV-2 
 confirmed cases and deaths disaggregated by age group and sex. 
@@ -12,12 +14,10 @@ ISS in short. A link to the most recent report can be found in
 under section "Documento esteso".
 
 Reports were originally published by ISS twice per week; since april, they are 
-published only once per week, usually on ~~Friday~~ Saturday.
+published only once per week.
 
-This repository is automatically updated each Saturday at 12 am (CEST) running a
-[GitHub workflow](.github/workflows/update-data.yaml).
-Of course, any change in the ISS website or in the structure of the PDF reports 
-may require adjustments in the code and, as a consequence, may cause a delay.
+This repository is automatically updated by a [GitHub workflow](.github/workflows/update-data.yaml)
+that is run regularly (see the workflow file for more details).
 
 
 ## Updates
