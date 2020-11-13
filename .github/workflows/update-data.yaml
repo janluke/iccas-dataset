@@ -9,8 +9,8 @@ name: Update data
 on:
   schedule:
     # syntax: <minute> <hour> <day-of-the-year> <month> <day-of-the-week>
-    - cron: '0 10,13,16 * * 1-6'
-    # Run three times a day (except sunday): 12, 15, 18 CEST (UTC+1:00)
+    - cron: '0 11,14,17 * * 1-6'
+    # Run three times a day (except sunday): 12, 15, 18 (Italian time)
 
   workflow_dispatch:
     # enable manual triggering from GitHub
