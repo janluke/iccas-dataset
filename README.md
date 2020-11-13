@@ -1,6 +1,7 @@
 # Italian Coronavirus Cases by Age group and Sex (ICCAS)
 
-[![Update data](https://github.com/janLuke/iccas-dataset/workflows/Update%20data/badge.svg)](https://github.com/janLuke/iccas-dataset/actions)
+[![Badge: health of "Update data" workflow](https://github.com/janLuke/iccas-dataset/workflows/Update%20data/badge.svg)](https://github.com/janLuke/iccas-dataset/actions)
+[![Badge: data updated to](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/janluke/155f87dfa7e7a88887fa1c7da879f7f8/raw/iccas-last-update.json)](https://github.com/janLuke/iccas-dataset/tree/master/data)
 
 _[Leggilo in italiano (Read it in Italian)](README.it.md)._
 
