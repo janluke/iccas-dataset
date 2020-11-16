@@ -3,14 +3,17 @@
 # If no new reports are found, this workflow terminates with success.
 # If a new report is found, relevant README badges are updated as well.
 #
-# FIXME: remove those ugly "if" when GitHub introduces some form of early exit
+# FIXME:
+#   - remove those ugly "if" when GitHub introduces some form of early exit
+#     (see https://github.com/actions/runner/issues/662)
+#   - consider to split the only job in multiple jobs (check for updates + update)
 #
 name: Update data
 on:
   schedule:
     # syntax: <minute> <hour> <day-of-the-year> <month> <day-of-the-week>
-    - cron: '0 11,14,17 * * 1-6'
-    # Run three times a day (except sunday): 12, 15, 18 (Italian time)
+    - cron: '0 11,14,17 * * *'
+    # Run three times a day: 12, 15, 18 (Italian time)
 
   workflow_dispatch:
     # enable manual triggering from GitHub
