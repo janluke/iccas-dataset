@@ -1,12 +1,10 @@
 # Fetch new report(s), update the data folder and push changes to the branch
 # that triggered the workflow ("master" in case of scheduled executions).
 # If no new reports are found, this workflow terminates with success.
-# If a new report is found, relevant README badges are updated as well.
 #
 # FIXME:
 #   - remove those ugly "if" when GitHub introduces some form of early exit
 #     (see https://github.com/actions/runner/issues/662)
-#   - consider to split the only job in multiple jobs (check for updates + update)
 #
 name: Update data
 on:
@@ -55,22 +53,3 @@ jobs:
         with:
           branch: ${{ github.ref }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set env.LATEST to the date of most recent data
-        if: steps.update-data.outputs.updated-files != ''
-        run: >
-          python -c
-          "from src.common import get_latest_data_date;
-          print(f'LATEST={get_latest_data_date()}')"
-          >> $GITHUB_ENV
-
-      - name: Update badge [Data updated to | {date}]
-        if: steps.update-data.outputs.updated-files != ''
-        uses: schneegans/dynamic-badges-action@v1.0.0
-        with:
-          auth: ${{ secrets.GIST_SECRET }}
-          gistID: 155f87dfa7e7a88887fa1c7da879f7f8
-          filename: iccas-last-update.json
-          label: Data updated to
-          message: ${{ env.LATEST }}
-          color: blue

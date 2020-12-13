@@ -1,0 +1,28 @@
+name: Update "Data updated to" badge
+on:
+  push:
+    branches:
+      - master
+
+  workflow_dispatch:
+
+jobs:
+  update-badge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set env.LATEST to the date of most recent data
+        run: >
+          echo "LATEST=$(ls data/by-date | tail -n 1 | cut -c 7-16)" >> $GITHUB_ENV
+
+      - name: Update badge [Data updated to | {date}]
+        uses: schneegans/dynamic-badges-action@v1.0.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: 155f87dfa7e7a88887fa1c7da879f7f8
+          filename: iccas-last-update.json
+          label: Data updated to
+          message: ${{ env.LATEST }}
+          color: blue
