@@ -1,4 +1,5 @@
 import abc
+import logging
 import math
 import re
 from datetime import datetime
@@ -10,6 +11,12 @@ from PyPDF3 import PdfFileReader
 from reagex import reagex
 
 from common import cartesian_join, get_italian_date_pattern, process_datetime_tokens
+
+logger = logging.getLogger(__name__)
+
+KNOWN_MALFORMED_REPORTS = {
+    'percentages_sum_is_not_100': {'2020-12-09'}
+}
 
 
 def parse_int(s: str) -> int:
@@ -90,6 +97,9 @@ class TableExtractor(abc.ABC):
         extracted data.
         """
         table = self._extract(report_path)
+        table_datetime: pd.Timestamp = table['date'].iloc[0]
+        table_date = table_datetime.date().isoformat()
+
         # Replace '≥90' with ascii equivalent '>=90'
         table.at[9, "age_group"] = ">=90"
         # Replace 'Età non nota' with english translation
@@ -99,11 +109,12 @@ class TableExtractor(abc.ABC):
         # Remember that {something} includes people of unknown sex
         check_sum_of_males_and_females_not_more_than_total(table)
 
-        # Recompute derived columns for maximum precision and sanity checking
+        if table_date not in KNOWN_MALFORMED_REPORTS['percentages_sum_is_not_100']:
+            check_percentage_columns_sum_is_100(table)
+        else:
+            logger.info(f'Skipping check on percentages columns of dataset "{table_date}"')
+
         refined_table = recompute_derived_columns(table)
-        check_recomputed_columns_match_extracted_ones(
-            original=table, recomputed=refined_table
-        )
         return refined_table
 
     def __call__(self, report_path):
@@ -175,6 +186,16 @@ def check_sum_of_males_and_females_not_more_than_total(table: pd.DataFrame):
             )
 
 
+def check_percentage_columns_sum_is_100(table: pd.DataFrame):
+    for col in ['cases_percentage', 'deaths_percentage']:
+        values = table[col]
+        if values.sum() != 100.0:
+            raise TableExtractionError(
+                f"sum of column '{col}' should be 100.0, it is {values.sum()}. "
+                f"Column:\n{values}"
+            )
+
+
 def convert_values(values, converters):
     if len(values) != len(converters):
         raise ValueError
@@ -208,12 +229,17 @@ def check_recomputed_columns_match_extracted_ones(
     original: pd.DataFrame, recomputed: pd.DataFrame
 ):
     for col in DERIVED_COLUMNS:
-        if not numpy.allclose(recomputed[col], original[col], atol=0.1):
-            sidebyside = pd.DataFrame(
-                {"recomputed": recomputed[col], "extracted": original[col]}
-            )
+        isclose = numpy.isclose(recomputed[col], original[col], atol=0.1, rtol=0)
+        if not numpy.all(isclose):
+            rounded = numpy.around(recomputed[col], 1)
+            sidebyside = pd.DataFrame({
+                "recomputed": recomputed[col],
+                "rounded": rounded,
+                "original": original[col],
+                "isClose": isclose,
+            })
             raise TableExtractionError(
-                f"recomputed derived columns don't match columns extracted from"
+                f"recomputed column '{col}' doesn't match column extracted from "
                 f"the report:\n{sidebyside}"
             )
 
