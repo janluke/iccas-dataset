@@ -31,11 +31,11 @@ that is run regularly (see the workflow file for more details).
 
 ## Python package and notebooks
 
-In [iccas-python][iccas-python], you can find a 
-Python package for downloading, processing and visualizing the data. 
+In [iccas-python][iccas-python], you can find a Python package 
+for downloading, processing and visualizing the data. 
 It also contains a bunch of Jupyter notebooks with tables and charts that you 
-can also run either locally or on Binder [clicking here][launch-binder] or on 
-the badge at the top of the page.
+can also run on Binder by [clicking here][launch-binder] or on the badge at the 
+top of the page.
 
 
 ## Updates
