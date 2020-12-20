@@ -5,7 +5,6 @@ import re
 from datetime import datetime
 from typing import Any, Callable, Tuple
 
-import numpy
 import pandas as pd
 from PyPDF3 import PdfFileReader
 from reagex import reagex
@@ -13,10 +12,6 @@ from reagex import reagex
 from common import cartesian_join, get_italian_date_pattern, process_datetime_tokens
 
 logger = logging.getLogger(__name__)
-
-KNOWN_MALFORMED_REPORTS = {
-    'percentages_sum_is_not_100': {'2020-12-09'}
-}
 
 
 def parse_int(s: str) -> int:
@@ -97,8 +92,6 @@ class TableExtractor(abc.ABC):
         extracted data.
         """
         table = self._extract(report_path)
-        table_datetime: pd.Timestamp = table['date'].iloc[0]
-        table_date = table_datetime.date().isoformat()
 
         # Replace '≥90' with ascii equivalent '>=90'
         table.at[9, "age_group"] = ">=90"
@@ -108,12 +101,6 @@ class TableExtractor(abc.ABC):
         # Ensure (male_{something} + female_{something} <= {something})
         # Remember that {something} includes people of unknown sex
         check_sum_of_males_and_females_not_more_than_total(table)
-
-        if table_date not in KNOWN_MALFORMED_REPORTS['percentages_sum_is_not_100']:
-            check_percentage_columns_sum_is_100(table)
-        else:
-            logger.info(f'Skipping check on percentages columns of dataset "{table_date}"')
-
         refined_table = recompute_derived_columns(table)
         return refined_table
 
@@ -125,21 +112,37 @@ class PyPDFTableExtractor(TableExtractor):
     unknown_age_matcher = re.compile("(età non nota|non not[ao])", flags=re.IGNORECASE)
 
     def _extract(self, report_path) -> pd.DataFrame:
+        num_rows = 11
+        num_columns = len(INPUT_COLUMNS)
+
         pdf = PdfFileReader(str(report_path))
         date = extract_datetime(extract_text(pdf, page=0))
         page, _ = find_table_page(pdf)
         page = self.unknown_age_matcher.sub("unknown", page)
         data_start = page.find("0-9")
-        raw_data = page[data_start:]
-        raw_data = raw_data.replace(", ", ",")  # from 28/09, they write "1,5" as "1, 5"
-        tokens = raw_data.split(" ")
-        num_rows = 11
-        num_columns = len(INPUT_COLUMNS)
+        # on 2020-09-28, they wrote floats like "1, 5"
+        raw_data = page[data_start:].replace(", ", ",")
+        tokens = raw_data.split()
+        # In some cases, PyPDF3 doesn't read the token "≥90" (probably a bug),
+        # so I insert that manually in case is missing. Couldn't the token in
+        # that position be "90" by coincidence? Nope. If "≥90" is missing, the
+        # token in that position is the cumulative total of cases with age >= 90
+        # which has never been equal to 90 (and never will be).
+        if tokens[9 * num_columns] not in {"90", ">90", "≥90"}:
+            tokens.insert(9 * num_columns, ">=90")
         rows = []
         for i in range(num_rows):
-            data_start = i * num_columns
-            end = data_start + num_columns
-            values = convert_values(tokens[data_start:end], COLUMN_CONVERTERS)
+            start = i * num_columns
+            end = start + num_columns
+            row_tokens = tokens[start:end]
+            try:
+                values = convert_values(row_tokens, COLUMN_CONVERTERS)
+            except ValueError or TypeError as err:
+                logger.debug('Error in row %d: ')
+                raise TableExtractionError(
+                    f"\nError while converting values of row {i}: {err}.\n"
+                    f"Row tokens: {' | '.join(row_tokens)}"
+                )
             row = [date, *values]
             rows.append(row)
         report_data = pd.DataFrame(rows, columns=["date", *INPUT_COLUMNS])
@@ -186,16 +189,6 @@ def check_sum_of_males_and_females_not_more_than_total(table: pd.DataFrame):
             )
 
 
-def check_percentage_columns_sum_is_100(table: pd.DataFrame):
-    for col in ['cases_percentage', 'deaths_percentage']:
-        values = table[col]
-        if values.sum() != 100.0:
-            raise TableExtractionError(
-                f"sum of column '{col}' should be 100.0, it is {values.sum()}. "
-                f"Column:\n{values}"
-            )
-
-
 def convert_values(values, converters):
     if len(values) != len(converters):
         raise ValueError
@@ -223,44 +216,3 @@ def recompute_derived_columns(x: pd.DataFrame) -> pd.DataFrame:
         y[f"{sex}_fatality_rate"] = x[f"{sex}_deaths"] / x[f"{sex}_cases"] * 100
 
     return y[list(OUTPUT_COLUMNS)]  # ensure columns are in the right order
-
-
-def check_recomputed_columns_match_extracted_ones(
-    original: pd.DataFrame, recomputed: pd.DataFrame
-):
-    for col in DERIVED_COLUMNS:
-        isclose = numpy.isclose(recomputed[col], original[col], atol=0.1, rtol=0)
-        if not numpy.all(isclose):
-            rounded = numpy.around(recomputed[col], 1)
-            sidebyside = pd.DataFrame({
-                "recomputed": recomputed[col],
-                "rounded": rounded,
-                "original": original[col],
-                "isClose": isclose,
-            })
-            raise TableExtractionError(
-                f"recomputed column '{col}' doesn't match column extracted from "
-                f"the report:\n{sidebyside}"
-            )
-
-
-def check_sum_of_counts_gives_totals(table: pd.DataFrame, totals: pd.DataFrame):
-    """
-    CURRENTLY NOT USED. This was useful in a previous version of the script using
-    Tabula, which extracted the row with totals. With the current implementation,
-    parsing the row with totals (last PDF table row) increases the chances of a
-    parsing failure.
-    TODO: I may even remove this and retrieve it from git history if I need it.
-
-    Args:
-        table: the data extracted from the report
-        totals: the row with totals (last row in the PDF table)
-    """
-    columns = cartesian_join(COLUMN_PREFIXES, ["cases", "deaths"])
-    for col in columns:
-        actual_sum = table[col].sum()
-        if actual_sum != totals[col]:
-            raise TableExtractionError(
-                f'column "{col}" sum() is inconsistent with the value reported '
-                f"in the last row of the table: {actual_sum} != {totals[col]}"
-            )
