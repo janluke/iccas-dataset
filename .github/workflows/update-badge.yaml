@@ -4,6 +4,12 @@ on:
     branches:
       - master
 
+  workflow_run:
+    workflows: [ "Update data" ]
+    branches: [ master ]
+    types:
+      - completed
+
   workflow_dispatch:
 
 jobs:
