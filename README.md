@@ -14,6 +14,13 @@
 
 _[Leggilo in italiano (Read it in Italian)](README.it.md)._
 
+**NOTICE (2020/12/22):** ISS has recently started to release [daily data in xlsx format](
+https://www.epicentro.iss.it/coronavirus/open-data/covid_19-iss.xlsx).
+This repository will still be updated by the automatic workflow for some months
+(or until it stops working). 
+
+***
+
 This repository contains datasets about the number of Italian Sars-CoV-2 
 confirmed cases and deaths disaggregated by age group and sex. 
 The data is (automatically) extracted from pdf reports 

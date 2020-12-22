@@ -14,6 +14,14 @@
 
 _[Read it in English (Leggilo in Inglese)](README.md)_.
 
+**AVVISO (22/12/2020):** L'ISS ha recentemente iniziato a rilasciare 
+[dati giornalieri in formato xlsx](
+https://www.epicentro.iss.it/coronavirus/open-data/covid_19-iss.xlsx).
+Il workflow che aggiorna questa repository continuerà a essere eseguito ancora 
+per qualche mese (o finché non smetterà di funzionare).
+
+***
+
 Questa repository contiene dataset sul numero di casi italiani di Coronavirus 
 (e morti per/con Coronavirus) disaggregati per fascia d'età e sesso. 
 ICCAS è l'acronimo del nome inglese del dataset (*"Italian Coronavirus Cases by 
@@ -37,7 +45,7 @@ In [iccas-python](https://github.com/janLuke/iccas-python), ho pubblicato un
 pacchetto Python con funzioni per il download, l'elaborazione e la visualizzazione
 dei dati.
 La repository contiene anche dei Jupyter notebook con tabelle e grafici che puoi 
-eseguire in locale o su Binder [cliccando qui][launch-binder] o sul badge in 
+eseguire anche su Binder [cliccando qui][launch-binder] o sul badge in 
 cima alla pagina.
 
 
