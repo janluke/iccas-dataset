@@ -14,6 +14,9 @@
 
 _[Leggilo in italiano (Read it in Italian)](README.it.md)._
 
+**NOTICE (2021/01/23):** The workflow for updating the data was disabled, as
+anticipated in the previous notice.
+
 **NOTICE (2020/12/22):** ISS has recently started to release [daily data in xlsx format](
 https://www.epicentro.iss.it/coronavirus/open-data/covid_19-iss.xlsx).
 This repository will still be updated by the automatic workflow for some months

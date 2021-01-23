@@ -14,6 +14,9 @@
 
 _[Read it in English (Leggilo in Inglese)](README.md)_.
 
+**AVVISO (23/01/2021):** Il worfkflow per l'aggiornamento dei dati è stato 
+disabilitato, come annunciato nel precedente avviso.
+
 **AVVISO (22/12/2020):** L'ISS ha recentemente iniziato a rilasciare 
 [dati giornalieri in formato xlsx](
 https://www.epicentro.iss.it/coronavirus/open-data/covid_19-iss.xlsx).
